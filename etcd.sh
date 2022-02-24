@@ -82,6 +82,19 @@ etcd_heartbeat() {
   echo -e "we found $heartbeat messages in $1"
 }
 
+etcd_spaceex() {
+  echo -e ""
+  spaceex=$(${CLIENT} logs $1 -n ${NS} -c etcd | grep 'database space exceeded' | wc -l)
+  echo -e "we found $spaceex messages in $1"
+}
+
+etcd_leaderchanged() {
+  echo -e ""
+  leaderchanged=$(${CLIENT} logs $1 -n ${NS} -c etcd | grep 'leader changed' | wc -l)
+  echo -e "we found $leaderchanged messages in $1"
+}
+
+
 etcd_membershealth() {
   echo -e ""
   ${CLIENT} rsh -n ${NS} -c etcd $1 etcdctl endpoint status -w table
@@ -134,3 +147,13 @@ echo -e ""
 echo -e "-- NUMBER OF 'rafthttp: the clock difference' MESSAGES ---------------------------------"
 echo -e "when clocks are out of sync with each other they are causing I/O timeouts and the liveness probe is failing which makes the ETCD pod to restart frequently. Check if Chrony is enabled, running, and in sync with chronyc sources and chronyc tracking"
 for o in $(${CLIENT} get pod -n openshift-etcd| grep -v quorum-guard | grep etcd|cut -d " " -f1); do etcd_ntp $o;done
+
+echo -e ""
+echo -e "-- NUMBER OF 'etcdserver: mvcc: database space exceeded' MESSAGES ---------------------------------"
+#echo -e "when clocks are out of sync with each other they are causing I/O timeouts and the liveness probe is failing which makes the ETCD pod to restart frequently. Check if Chrony is enabled, running, and in sync with chronyc sources and chronyc tracking"
+for o in $(${CLIENT} get pod -n openshift-etcd| grep -v quorum-guard | grep etcd|cut -d " " -f1); do etcd_spaceex $o;done
+
+echo -e ""
+echo -e "-- NUMBER OF 'etcdserver: leader changed' MESSAGES ---------------------------------"
+#echo -e "when clocks are out of sync with each other they are causing I/O timeouts and the liveness probe is failing which makes the ETCD pod to restart frequently. Check if Chrony is enabled, running, and in sync with chronyc sources and chronyc tracking"
+for o in $(${CLIENT} get pod -n openshift-etcd| grep -v quorum-guard | grep etcd|cut -d " " -f1); do etcd_leaderchanged $o;done
