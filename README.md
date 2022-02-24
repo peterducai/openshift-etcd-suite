@@ -4,6 +4,8 @@ tools to troubleshoot ETCD on Openshift 4
 
 ## fio_suite
 
+fio_suite is benchmark tool which runs several fio tests to see how IOPS change under different load
+
 > podman run --volume /$(pwd):/test:Z quay.io/peterducai/openshift-etcd-suite:latest
 
 but on RHCOS run
