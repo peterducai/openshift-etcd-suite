@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$HOME/bin"
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$HOME/bin"  #add your path to omc if not already defined here
 
 NS="openshift-etcd"
 CLIENT="oc"
