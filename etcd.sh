@@ -105,6 +105,13 @@ etcd_objects() {
   ${CLIENT} rsh -n ${NS} -c etcd $1 etcdctl get / --prefix --keys-only | sed '/^$/d' | cut -d/ -f3 | sort | uniq -c | sort -rn
 }
 
+etcd_watch() {
+  ${CLIENT} rsh -n ${NS} -c etcd $1 etcdctl watch / --prefix  --write-out=fields > etcdwatch.log
+  ${CLIENT} cp default/$1:etcdwatch.log /home/$USER/etcdwatch.log)
+
+  awk  'BEGIN{FS="/"; OFS="/";} /^\"Key/{print $2,$3}' /home/$USER/etcdwatch.log | sort | uniq -c | sort -nr     (to see changes in objects)
+}
+
 echo -e "-- ETCD COMPACTION ---------------------------------"
 echo -e "should be ideally below 100ms (and below 10ms on fast SSD/NVMe)"
 echo -e ""
