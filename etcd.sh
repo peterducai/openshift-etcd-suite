@@ -103,6 +103,9 @@ etcd_membershealth() {
 etcd_objects() {
   echo -e ""
   ${CLIENT} rsh -n ${NS} -c etcd $1 etcdctl get / --prefix --keys-only | sed '/^$/d' | cut -d/ -f3 | sort | uniq -c | sort -rn
+  echo -e ""
+  echo -e "NOTE: additionaly check for NS with too many secrets that could cause perf issues"
+  echo -e "oc get secrets -A --no-headers | awk '{ns[$1]++}END{for (i in ns) print i,ns[i]}'"
 }
 
 etcd_watch() {
