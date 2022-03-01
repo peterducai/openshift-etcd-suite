@@ -108,12 +108,12 @@ etcd_objects() {
   echo -e "oc get secrets -A --no-headers | awk '{ns[$1]++}END{for (i in ns) print i,ns[i]}'"
 }
 
-etcd_watch() {
-  ${CLIENT} rsh -n ${NS} -c etcd $1 etcdctl watch / --prefix  --write-out=fields > etcdwatch.log
-  ${CLIENT} cp default/$1:etcdwatch.log /home/$USER/etcdwatch.log
+# etcd_watch() {
+#   ${CLIENT} rsh -n ${NS} -c etcd $1 etcdctl watch / --prefix  --write-out=fields > etcdwatch.log
+#   ${CLIENT} cp default/$1:etcdwatch.log /home/$USER/etcdwatch.log
 
-  awk  'BEGIN{FS="/"; OFS="/";} /^\"Key/{print $2,$3}' /home/$USER/etcdwatch.log | sort | uniq -c | sort -nr     (to see changes in objects)
-}
+#   awk  'BEGIN{FS="/"; OFS="/";} /^\"Key/{print $2,$3}' /home/$USER/etcdwatch.log | sort | uniq -c | sort -nr     (to see changes in objects)
+# }
 
 echo -e "-- ETCD COMPACTION ---------------------------------"
 echo -e "should be ideally below 100ms (and below 10ms on fast SSD/NVMe)"
