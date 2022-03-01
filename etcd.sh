@@ -110,7 +110,7 @@ etcd_objects() {
 
 etcd_watch() {
   ${CLIENT} rsh -n ${NS} -c etcd $1 etcdctl watch / --prefix  --write-out=fields > etcdwatch.log
-  ${CLIENT} cp default/$1:etcdwatch.log /home/$USER/etcdwatch.log)
+  ${CLIENT} cp default/$1:etcdwatch.log /home/$USER/etcdwatch.log
 
   awk  'BEGIN{FS="/"; OFS="/";} /^\"Key/{print $2,$3}' /home/$USER/etcdwatch.log | sort | uniq -c | sort -nr     (to see changes in objects)
 }
