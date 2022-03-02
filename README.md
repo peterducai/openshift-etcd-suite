@@ -2,6 +2,10 @@
 
 tools to troubleshoot ETCD on Openshift 4
 
+For easy use of container you can create alias for openshift-etcd-suite
+
+> alias oes="podman run --volume /$(pwd):/test:Z quay.io/peterducai/openshift-etcd-suite:latest"
+
 ## etcd.sh script
 
 ETCD script will make collect info from ETCD pods, make little summary and search for errors/issues and explains what are expected values
