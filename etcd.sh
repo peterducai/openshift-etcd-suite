@@ -49,7 +49,7 @@ etcd_compaction() {
     ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -10
     ;;
   4.6)
-    ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f12| cut -d ')' -f 1 |sort|tail -10 
+    ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -10 #was f12, but doesnt work on some gathers
     ;;
   *)
     echo -e "unknown version ${CLIENT} !"
@@ -106,6 +106,10 @@ etcd_objects() {
   echo -e ""
   echo -e "NOTE: additionaly check for NS with too many secrets that could cause perf issues"
   echo -e "oc get secrets -A --no-headers | awk '{ns[$1]++}END{for (i in ns) print i,ns[i]}'"
+}
+
+list_secrets_per_ns() {
+  oc get secrets -A --no-headers | awk '{ns[$1]++}END{for (i in ns) print i,ns[i]}'
 }
 
 # etcd_watch() {

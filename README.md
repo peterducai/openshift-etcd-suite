@@ -13,7 +13,10 @@ You can either do *oc login* and then run
 or you can use it with [omc](https://github.com/gmeghnag/omc)/omg and must-gather (omc should be either in /usr/bin or $HOME/bin directory)
 
 > ./etcd.sh omc /some_path/must-gather.folder
-> 
+
+or 
+
+> podman run --volume /$(pwd):/test:Z quay.io/peterducai/openshift-etcd-suite:latest etcd omc path_to_must-gather
 
 ## fio_suite
 
@@ -25,15 +28,15 @@ Run
 
 or thru podman/docker
 
-> podman run --volume /$(pwd):/test:Z quay.io/peterducai/openshift-etcd-suite:latest
+> podman run --volume /$(pwd):/test:Z quay.io/peterducai/openshift-etcd-suite:latest fio
 
 but on RHCOS run
 
-> podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest
+> podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest fio
 
 or to benchmark disk where ETCD resides
 
-> podman run --privileged --volume /var/lib/etcd:/test quay.io/peterducai/openshift-etcd-suite:latest
+> podman run --privileged --volume /var/lib/etcd:/test quay.io/peterducai/openshift-etcd-suite:latest fio
 
 **NOTE:** don't run it in / or /home/user as its top folder and you get Selinux error
 
