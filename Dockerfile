@@ -9,8 +9,8 @@ RUN rm -rf omc-v1.4.0_Linux_x86_64.tar.gz
 WORKDIR /
 COPY omc /usr/local/bin/
 COPY etcd.sh /
-COPY fio_suite.sh /usr/local/bin/
-COPY etcd_tooktoolong.py /usr/local/bin/
+COPY fio_suite.sh /
+COPY etcd_tooktoolong.py /
 COPY runner.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/omc
 RUN chmod +x /fio_suite.sh

@@ -48,6 +48,74 @@ or to benchmark disk where ETCD resides
 
 **NOTE:** don't run it in / or /home/user as its top folder and you get Selinux error
 
+```
+podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest runner.sh fio
+FIO SUITE version 0.1
+ 
+WARNING: this test will run for several minutes without any progress! Please wait until it finish!
+ 
+- [MAX CONCURRENT READ] ---
+This job is a read-heavy workload with lots of parallelism that is likely to show off the device's best throughput:
+ 
+Highly concurrent reading of 1GB file 
+  read: IOPS=4794, BW=300MiB/s (314MB/s)(1024MiB/3417msec)
+ 
+Highly concurrent reading of 200MB file 
+  read: IOPS=4139, BW=259MiB/s (271MB/s)(200MiB/773msec)
+ 
+- [REQUEST OVERHEAD AND SEEK TIMES] ---
+This job is a latency-sensitive workload that stresses per-request overhead and seek times. Random reads.
+ 
+Reading randomly 1GB file 
+  read: IOPS=267k, BW=1043MiB/s (1093MB/s)(1024MiB/982msec)
+ 
+Reading randomly 200MB file 
+  read: IOPS=289k, BW=1130MiB/s (1185MB/s)(200MiB/177msec)
+ 
+ 
+- [SEQUENTIAL IOPS UNDER DIFFERENT READ/WRITE LOAD] ---
+ 
+ -- SINGLE JOB -- 
+-- [70% read, 30% write] --
+ 
+Sequential read of 1GB file 
+  write: IOPS=42.7k, BW=167MiB/s (175MB/s)(308MiB/1844msec); 0 zone resets
+ 
+Sequential read of 1GB file 
+  write: IOPS=42.6k, BW=166MiB/s (175MB/s)(59.9MiB/360msec); 0 zone resets
+ 
+ -- SINGLE JOB -- 
+-- [30% read, 70% write] --
+ 
+Sequential read of 1GB file 
+  write: IOPS=35.6k, BW=139MiB/s (146MB/s)(140MiB/1005msec); 0 zone resets
+ 
+Sequential read of 1GB file 
+  write: IOPS=37.8k, BW=148MiB/s (155MB/s)(715MiB/4849msec); 0 zone resets
+ 
+ -- 16 PARALLEL JOBS -- 
+-- [70% read, 30% write] --
+ 
+Sequential read of 1GB file 
+  write: IOPS=2957, BW=11.6MiB/s (12.1MB/s)(193MiB/16710msec); 0 zone resets
+ 
+Sequential read of 1GB file 
+  write: IOPS=2718, BW=10.6MiB/s (11.1MB/s)(60.0MiB/5647msec); 0 zone resets
+ 
+ -- 16 PARALLEL JOBS -- 
+-- [30% read, 70% write] --
+ 
+Sequential read of 1GB file 
+  write: IOPS=2975, BW=11.6MiB/s (12.2MB/s)(14.7MiB/1264msec); 0 zone resets
+ 
+Sequential read of 1GB file 
+  write: IOPS=3130, BW=12.2MiB/s (12.8MB/s)(598MiB/48897msec); 0 zone resets
+ 
+ 
+- END -----------------------------------------
+
+```
+
 
 
 [![Docker Repository on Quay](https://quay.io/repository/peterducai/openshift-etcd-suite/status "Docker Repository on Quay")](https://quay.io/repository/peterducai/openshift-etcd-suite)
