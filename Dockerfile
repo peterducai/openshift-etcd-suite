@@ -10,6 +10,7 @@ COPY omc /usr/local/bin/
 COPY fio_suite.sh /usr/local/bin/
 COPY etcd_tooktoolong.py /usr/local/bin/
 COPY runner.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/omc
 RUN chmod +x /usr/local/bin/fio_suite.sh
 RUN chmod +x /usr/local/bin/etcd_tooktoolong.py
 RUN chmod +x /usr/local/bin/runner.sh
