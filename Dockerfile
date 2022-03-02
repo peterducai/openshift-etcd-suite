@@ -10,11 +10,11 @@ WORKDIR /
 COPY /omc /usr/local/bin/
 COPY etcd.sh /
 COPY fio_suite.sh /
-COPY etcd_tooktoolong.py /
+COPY etcd_tooktoolong311.py /
 COPY runner.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/omc
 RUN chmod +x /fio_suite.sh
 RUN chmod +x /etcd.sh
-RUN chmod +x /etcd_tooktoolong.py
+RUN chmod +x /etcd_tooktoolong311.py
 RUN chmod +x /usr/local/bin/runner.sh
 CMD ["runner.sh"]

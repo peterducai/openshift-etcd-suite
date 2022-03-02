@@ -38,7 +38,7 @@ with open(etcd_logfile, 'r') as logfile:
 
 a = np.asarray(times_list).astype(np.float64)
 
-print("# Statistics")
+print("")
 print("Count: {0}".format(len(times_list)))
 print("Min: {0}".format(np.min(a)))
 print("Max: {0}".format(np.max(a)))
