@@ -24,7 +24,8 @@ or you can use it with [omc](https://github.com/gmeghnag/omc) and must-gather (o
 
 or 
 
-> podman run --volume /$(pwd):/test:Z quay.io/peterducai/openshift-etcd-suite:latest etcd omc path_to_must-gather
+> podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:0.1.0 runner.sh etcd omc /test/path-to-must-gather
+
 
 ## fio_suite
 

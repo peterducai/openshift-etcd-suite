@@ -5,7 +5,7 @@ case "$1" in
     ./etcd.sh $2 $3
     ;;
   toolong)
-    ./etcd_tooktoolong.py
+    ./etcd_tooktoolong.py $2
     ;;
   fio)
     ./fio_suite.sh
