@@ -1,0 +1,5 @@
+read3: (g=0): rw=rw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=4
+...
+fio-3.26
+Starting 16 processes
+read3: Laying out IO file (1 file / 1024MiB)
