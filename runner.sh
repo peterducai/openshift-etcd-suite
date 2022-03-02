@@ -2,7 +2,7 @@
 
 case "$1" in
   etcd)
-    ./etcd.sh $1 $2
+    ./etcd.sh $2 $3
     ;;
   toolong)
     ./etcd_tooktoolong.py

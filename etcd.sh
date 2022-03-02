@@ -3,7 +3,7 @@
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:$HOME/bin"  #add your path to omc if not already defined here
 
 NS="openshift-etcd"
-CLIENT="oc"
+CLIENT="omc"
 CURRENT_PATH=$(pwd)
 
 
@@ -19,14 +19,11 @@ case "$1" in
     #$(${CLIENT} alert rule -s firing,pending -o wide)
     #$($CLIENT etcd status)
     ;;
-  omg)
-    CLIENT="$omg"
-    CURRENT_PATH=$2
-    echo -e "using client omg in folder $CURRENT_PATH"
-    $($CLIENT use $CURRENT_PATH)
+  oc)
+    echo -e "using default client oc"
     ;;
   *)
-    echo -e "using default client oc"
+    echo -e "No params, using omc"
     ;;
 esac
 
