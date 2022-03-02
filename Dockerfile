@@ -7,7 +7,7 @@ RUN wget https://github.com/gmeghnag/omc/releases/download/v1.4.0/omc-v1.4.0_Lin
 RUN tar -xvf omc-v1.4.0_Linux_x86_64.tar.gz
 RUN rm -rf omc-v1.4.0_Linux_x86_64.tar.gz
 WORKDIR /
-COPY omc /usr/local/bin/
+COPY /omc /usr/local/bin/
 COPY etcd.sh /
 COPY fio_suite.sh /
 COPY etcd_tooktoolong.py /
