@@ -12,7 +12,14 @@ to build container just run
 
 ## etcd.sh script
 
-ETCD script will make collect info from ETCD pods, make little summary and search for errors/issues and explains what are expected values
+ETCD script will make collect info from ETCD pods, make little summary and search for errors/issues and explains what are expected values.
+
+Fastest way to use it with must-gather is 
+
+```
+alias etcdcheck='podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest runner.sh etcd omc'
+etcdcheck /test/<path to must-gather>
+```
 
 You can either do *oc login* and then run
 
