@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 
 etcd_logfile = sys.argv[1]
+print("using path  {0}".format(etcd_logfile))
 if not os.path.isfile(etcd_logfile):
     print('File does not exist')
 

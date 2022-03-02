@@ -64,7 +64,9 @@ etcd_overload() {
 etcd_tooktoolong() {
   echo -e ""
   tooktoolong=$(${CLIENT} logs $1 -n ${NS} -c etcd | grep 'took too long' | wc -l)
+  $(${CLIENT} logs $1 -n ${NS} -c etcd > content)
   echo -e "we found $tooktoolong messages in $1"
+  ./etcd_tooktoolong311.py content
 }
 
 etcd_ntp() {
@@ -148,6 +150,7 @@ echo -e ""
 echo -e "-- NUMBER OF 'took too long' MESSAGES ---------------------------------"
 echo -e "there should be ideally no messages like that, but it really depends also on amount of messages (hundreds vs thousands)"
 for o in $(${CLIENT} get pod -n openshift-etcd| grep -v quorum-guard | grep etcd|cut -d " " -f1); do etcd_tooktoolong $o;done
+
 
 echo -e ""
 echo -e "-- NUMBER OF 'failed to send out heartbeat on time' MESSAGES ---------------------------------"
