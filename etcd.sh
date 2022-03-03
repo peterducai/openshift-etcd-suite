@@ -6,6 +6,9 @@ NS="openshift-etcd"
 CLIENT="omc"
 CURRENT_PATH=$(pwd)
 
+echo -e ""
+echo -e "- ETCD summary ----------------------------------"
+echo -e ""
 
 # INPUT params
 
