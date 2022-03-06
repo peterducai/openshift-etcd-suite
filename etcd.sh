@@ -47,6 +47,8 @@ etcd_compaction() {
   4.7)
     #echo -e "${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep \"compaction\"| grep -E \"[0-9]+(.[0-9]+)*\"|cut -d \" \" -f13| cut -d ')' -f 1 |sort|tail -10"
     ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -10
+    echo -e "AVG:"
+    ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13|sort|awk '{s+=$1}END{print "ave:",s/NR}'
     ;;
   4.6)
     ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -10 #was f12, but doesnt work on some gathers
