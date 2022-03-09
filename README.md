@@ -65,60 +65,32 @@ WARNING: this test will run for several minutes without any progress! Please wai
 - [MAX CONCURRENT READ] ---
 This job is a read-heavy workload with lots of parallelism that is likely to show off the device's best throughput:
  
-Highly concurrent reading of 1GB file 
-  read: IOPS=4794, BW=300MiB/s (314MB/s)(1024MiB/3417msec)
- 
-Highly concurrent reading of 200MB file 
-  read: IOPS=4139, BW=259MiB/s (271MB/s)(200MiB/773msec)
- 
+  read: IOPS=4282, BW=268MiB/s (281MB/s)(1024MiB/3826msec)
+  read: IOPS=3760, BW=235MiB/s (246MB/s)(200MiB/851msec)
 - [REQUEST OVERHEAD AND SEEK TIMES] ---
 This job is a latency-sensitive workload that stresses per-request overhead and seek times. Random reads.
  
-Reading randomly 1GB file 
-  read: IOPS=267k, BW=1043MiB/s (1093MB/s)(1024MiB/982msec)
- 
-Reading randomly 200MB file 
-  read: IOPS=289k, BW=1130MiB/s (1185MB/s)(200MiB/177msec)
- 
+  read: IOPS=258k, BW=1009MiB/s (1058MB/s)(1024MiB/1015msec)
+  read: IOPS=263k, BW=1026MiB/s (1075MB/s)(200MiB/195msec)
  
 - [SEQUENTIAL IOPS UNDER DIFFERENT READ/WRITE LOAD] ---
  
- -- SINGLE JOB -- 
--- [70% read, 30% write] --
+-- [ SINGLE JOB, 70% read, 30% write] --
  
-Sequential read of 1GB file 
-  write: IOPS=42.7k, BW=167MiB/s (175MB/s)(308MiB/1844msec); 0 zone resets
+  write: IOPS=41.6k, BW=162MiB/s (170MB/s)(308MiB/1894msec); 0 zone resets
+  write: IOPS=42.5k, BW=166MiB/s (174MB/s)(59.9MiB/361msec); 0 zone resets
+-- [ SINGLE JOB, 30% read, 70% write] --
  
-Sequential read of 1GB file 
-  write: IOPS=42.6k, BW=166MiB/s (175MB/s)(59.9MiB/360msec); 0 zone resets
+  write: IOPS=35.7k, BW=139MiB/s (146MB/s)(140MiB/1002msec); 0 zone resets
+  write: IOPS=35.4k, BW=138MiB/s (145MB/s)(715MiB/5171msec); 0 zone resets
+-- [ 8 PARALLEL JOBS, 70% read, 30% write] --
  
- -- SINGLE JOB -- 
--- [30% read, 70% write] --
+  write: IOPS=5662, BW=22.1MiB/s (23.2MB/s)(91.4MiB/4130msec); 0 zone resets
+  write: IOPS=5632, BW=22.0MiB/s (23.1MB/s)(59.6MiB/2708msec); 0 zone resets
+-- [ 8 PARALLEL JOBS, 30% read, 70% write] --
  
-Sequential read of 1GB file 
-  write: IOPS=35.6k, BW=139MiB/s (146MB/s)(140MiB/1005msec); 0 zone resets
- 
-Sequential read of 1GB file 
-  write: IOPS=37.8k, BW=148MiB/s (155MB/s)(715MiB/4849msec); 0 zone resets
- 
- -- 16 PARALLEL JOBS -- 
--- [70% read, 30% write] --
- 
-Sequential read of 1GB file 
-  write: IOPS=2957, BW=11.6MiB/s (12.1MB/s)(193MiB/16710msec); 0 zone resets
- 
-Sequential read of 1GB file 
-  write: IOPS=2718, BW=10.6MiB/s (11.1MB/s)(60.0MiB/5647msec); 0 zone resets
- 
- -- 16 PARALLEL JOBS -- 
--- [30% read, 70% write] --
- 
-Sequential read of 1GB file 
-  write: IOPS=2975, BW=11.6MiB/s (12.2MB/s)(14.7MiB/1264msec); 0 zone resets
- 
-Sequential read of 1GB file 
-  write: IOPS=3130, BW=12.2MiB/s (12.8MB/s)(598MiB/48897msec); 0 zone resets
- 
+  write: IOPS=6202, BW=24.2MiB/s (25.4MB/s)(140MiB/5765msec); 0 zone resets
+  write: IOPS=6219, BW=24.3MiB/s (25.5MB/s)(485MiB/19974msec); 0 zone resets
  
 - END -----------------------------------------
 
