@@ -20,4 +20,5 @@ RUN chmod +x /etcd.sh
 RUN chmod +x /etcd_tooktoolong311.py
 RUN chmod +x /usr/local/bin/etcd_tooktoolong311.py
 RUN chmod +x /usr/local/bin/runner.sh
-CMD ["runner.sh"]
+CMD ["/usr/local/bin/runner.sh"]
+ENTRYPOINT ["/usr/local/bin/runner.sh"]

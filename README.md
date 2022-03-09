@@ -17,7 +17,7 @@ ETCD script will make collect info from ETCD pods, make little summary and searc
 Fastest way to use it with must-gather is 
 
 ```
-alias etcdcheck='podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest runner.sh etcd omc'
+alias etcdcheck='podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest etcd omc'
 etcdcheck /test/<path to must-gather>
 ```
 
@@ -31,7 +31,7 @@ or you can use it with [omc](https://github.com/gmeghnag/omc) and must-gather (o
 
 or 
 
-> podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:0.1.0 runner.sh etcd omc /test/path-to-must-gather
+> podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest etcd omc /test/path-to-must-gather
 
 
 ## fio_suite
@@ -57,7 +57,7 @@ or to benchmark disk where ETCD resides
 **NOTE:** don't run it in / or /home/user as its top folder and you get Selinux error
 
 ```
-podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest runner.sh fio
+podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest fio
 FIO SUITE version 0.1
  
 WARNING: this test will run for several minutes without any progress! Please wait until it finish!
