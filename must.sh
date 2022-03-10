@@ -11,11 +11,11 @@ echo -e ""
 
 cd cluster-scoped-resources/core/nodes
 NODES_NUMBER=$(ls|wc -l)
-echo -e "There is $NODES_NUMBER nodes in cluster"
+echo -e "There are $NODES_NUMBER nodes in cluster"
 
 cd ../persistentvolumes
 PV_NUMBER=$(ls|wc -l)
-echo -e "There is $PV_NUMBER PVs in cluster"
+echo -e "There are $PV_NUMBER PVs in cluster"
 
 cd ../nodes
 
@@ -34,12 +34,12 @@ done
 
 for filename in *.yaml; do
     [ -e "$filename" ] || continue
-    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/infra:')" ] && INFRA+=("$filename") || true
+    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/infra:')" ] && INFRA+=("$filename")  && NODES+=("$filename [infra]") || true
 done
 
 for filename in *.yaml; do
     [ -e "$filename" ] || continue
-    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/worker:')" ] && WORKER+=("$filename") || true
+    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/worker:')" ] && WORKER+=("$filename")  && NODES+=("$filename [worker]") || true
 done
 
 echo -e " --------------- "
