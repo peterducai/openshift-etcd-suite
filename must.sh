@@ -70,3 +70,10 @@ for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     # cat $filename |grep node-role|grep -w "node-role.kubernetes.io/master:"
     # [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/master:')" ] && MASTER+=("$filename") && NODES+=("$filename [master]") || true
 done
+
+
+echo -e ""
+echo -e "[NETWORKING]"
+cd ../../../cluster-scoped-resources/network.openshift.io/clusternetworks/
+cat default.yaml |grep CIDR
+cat default.yaml | grep serviceNetwork
