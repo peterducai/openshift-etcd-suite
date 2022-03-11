@@ -66,6 +66,9 @@ for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'overload'|wc -l) overloaded messages."
     echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'took too long'|wc -l) took too long messages."
     echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'clock difference'|wc -l) ntp clock difference messages."
+    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'failed to send out heartbeat on time'|wc -l) failed to send out heartbeat on time messages."
+    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l) database space exceeded messages."
+    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l) leader changed messages."
     # echo -e "[$filename]"
     # cat $filename |grep node-role|grep -w "node-role.kubernetes.io/master:"
     # [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/master:')" ] && MASTER+=("$filename") && NODES+=("$filename [master]") || true
