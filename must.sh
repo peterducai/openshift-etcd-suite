@@ -46,6 +46,10 @@ echo -e " --------------- "
 # echo ${NODES[@]}
 
 echo -e "${#MASTER[@]} masters"
+if [ "${#MASTER[@]}" != "3" ]; then
+  echo -e "[WARNING] only 3 masters are supported, you have ${#MASTER[@]}."
+fi
+
 echo -e "${#INFRA[@]} infra nodes"
 echo -e "${#WORKER[@]} worker nodes"
 
@@ -70,28 +74,30 @@ for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     SPACE=$(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l)
     LEADER=$(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l)
 
-    if [ "$OVERLOAD" = "0" ]; then
-      echo -e "  - no overloaded messages. OK"
-    else
-      echo -e "  [WARNING] we found $OVERLOAD overloaded messages!"
+    if [ "$OVERLOAD" != "0" ]; then
+      echo -e " [WARNING] we found $OVERLOAD overloaded messages!"
     fi
 
-    if [ "$TOOK" = "0" ]; then
-      echo -e "  - no took too long messages. OK"
-    else
-      echo -e "  [WARNING] we found $TOOK took too long messages!"
+    if [ "$TOOK" != "0" ]; then
+      echo -e " [WARNING] we found $TOOK took too long messages!"
     fi
 
-    if [ "$CLOCK" = "0" ]; then
-      echo -e "  - no ntp clock difference messages. OK"
-    else
-      echo -e "  [WARNING] we found $CLOCK ntp clock difference messages! Check 'chronyc sources' and 'chronyc tracking' on masters."
+    if [ "$CLOCK" != "0" ]; then
+      echo -e " [WARNING] we found $CLOCK ntp clock difference messages! Check 'chronyc sources' and 'chronyc tracking' on masters."
     fi
 
+    if [ "$HEART" != "0" ]; then
+      echo -e " [WARNING] we found $HEART failed to send out heartbeat on time messages!"
+    fi
 
-    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'failed to send out heartbeat on time'|wc -l) failed to send out heartbeat on time messages."
-    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l) database space exceeded messages."
-    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l) leader changed messages."
+    if [ "$SPACE" != "0" ]; then
+      echo -e " [WARNING] we found $SPACE database space exceeded messages!"
+    fi
+
+    if [ "$LEADER" != "0" ]; then
+      echo -e " [WARNING] we found $LEADER leader changed messages!"
+    fi
+
     # echo -e "[$filename]"
     # cat $filename |grep node-role|grep -w "node-role.kubernetes.io/master:"
     # [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/master:')" ] && MASTER+=("$filename") && NODES+=("$filename [master]") || true
