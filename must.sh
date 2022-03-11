@@ -65,7 +65,8 @@ echo -e ""
 # ls |grep -v "revision"|grep -v "quorum"
 
 for member in $(ls |grep -v "revision"|grep -v "quorum"); do
-    echo -e "$member"
+    echo -e "- $member ----------------"
+    echo -e ""
 
     OVERLOAD=$(cat $member/etcd/etcd/logs/current.log|grep 'overload'|wc -l)
     TOOK=$(cat $member/etcd/etcd/logs/current.log|grep 'took too long'|wc -l)
@@ -75,28 +76,30 @@ for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     LEADER=$(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l)
 
     if [ "$OVERLOAD" != "0" ]; then
-      echo -e " [WARNING] we found $OVERLOAD overloaded messages!"
+      echo -e "  [WARNING] we found $OVERLOAD overloaded messages!"
     fi
 
     if [ "$TOOK" != "0" ]; then
-      echo -e " [WARNING] we found $TOOK took too long messages!"
+      echo -e "  [WARNING] we found $TOOK took too long messages!"
     fi
 
     if [ "$CLOCK" != "0" ]; then
-      echo -e " [WARNING] we found $CLOCK ntp clock difference messages! Check 'chronyc sources' and 'chronyc tracking' on masters."
+      echo -e "  [WARNING] we found $CLOCK ntp clock difference messages! Check 'chronyc sources' and 'chronyc tracking' on masters."
     fi
 
     if [ "$HEART" != "0" ]; then
-      echo -e " [WARNING] we found $HEART failed to send out heartbeat on time messages!"
+      echo -e "  [WARNING] we found $HEART failed to send out heartbeat on time messages!"
     fi
 
     if [ "$SPACE" != "0" ]; then
-      echo -e " [WARNING] we found $SPACE database space exceeded messages!"
+      echo -e "  [WARNING] we found $SPACE database space exceeded messages!"
     fi
 
     if [ "$LEADER" != "0" ]; then
-      echo -e " [WARNING] we found $LEADER leader changed messages!"
+      echo -e "  [WARNING] we found $LEADER leader changed messages!"
     fi
+
+    echo -e ""
 
     # echo -e "[$filename]"
     # cat $filename |grep node-role|grep -w "node-role.kubernetes.io/master:"
