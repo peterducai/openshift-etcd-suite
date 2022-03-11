@@ -61,11 +61,34 @@ echo -e ""
 # ls |grep -v "revision"|grep -v "quorum"
 
 for member in $(ls |grep -v "revision"|grep -v "quorum"); do
-    # [ -e "$member" ] || continue 
     echo -e "$member"
-    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'overload'|wc -l) overloaded messages."
-    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'took too long'|wc -l) took too long messages."
-    echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'clock difference'|wc -l) ntp clock difference messages."
+
+    OVERLOAD=$(cat $member/etcd/etcd/logs/current.log|grep 'overload'|wc -l)
+    TOOK=$(cat $member/etcd/etcd/logs/current.log|grep 'took too long'|wc -l)
+    CLOCK=$(cat $member/etcd/etcd/logs/current.log|grep 'clock difference'|wc -l) 
+    HEART=$(cat $member/etcd/etcd/logs/current.log|grep 'failed to send out heartbeat on time'|wc -l)
+    SPACE=$(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l)
+    LEADER=$(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l)
+
+    if [ "$OVERLOAD" = "0" ]; then
+      echo -e "  - no overloaded messages. OK"
+    else
+      echo -e "  [WARNING] we found $OVERLOAD overloaded messages!"
+    fi
+
+    if [ "$TOOK" = "0" ]; then
+      echo -e "  - no took too long messages. OK"
+    else
+      echo -e "  [WARNING] we found $TOOK took too long messages!"
+    fi
+
+    if [ "$CLOCK" = "0" ]; then
+      echo -e "  - no ntp clock difference messages. OK"
+    else
+      echo -e "  [WARNING] we found $CLOCK ntp clock difference messages! Check 'chronyc sources' and 'chronyc tracking' on masters."
+    fi
+
+
     echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'failed to send out heartbeat on time'|wc -l) failed to send out heartbeat on time messages."
     echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l) database space exceeded messages."
     echo -e "  - we found $(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l) leader changed messages."
