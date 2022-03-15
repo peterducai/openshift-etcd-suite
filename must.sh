@@ -59,8 +59,6 @@ help_etcd_objects() {
 
 for filename in *.yaml; do
     [ -e "$filename" ] || continue
-    # echo -e "[$filename]"
-    # cat $filename |grep node-role|grep -w "node-role.kubernetes.io/master:"
     [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/master:')" ] && MASTER+=("$filename") && NODES+=("$filename [master]") || true
 done
 
@@ -132,6 +130,15 @@ etcd_heart() {
       HR=$(($HR+$HEART))
     fi
 }
+
+etcd_space() {
+    SPACE=$(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l)
+    if [ "$SPACE" != "0" ]; then
+      echo -e "  ${RED}[WARNING]${NONE} we found $SPACE 'database space exceeded' in $1"
+      SP=$(($SP+$SPACE))
+    fi
+}
+
 
 
 # MAIN FUNCS
@@ -215,21 +222,35 @@ heart_check() {
       etcd_heart $member
     done
     echo -e ""
-    echo -e "  Found together $HEART messages."
+    echo -e "  Found together $HEART 'failed to send out heartbeat on time' messages."
     if [[ $HEART -ne "0" ]];then
         heart_solution
     fi
-    # if [ "$HEART" != "0" ]; then
-    #   echo -e "  ${RED}[WARNING]${NONE} we found $HEART failed to send out heartbeat on time messages!"
-    #   echo -e ""
-    # fi
+}
+
+space_solution() {
+    echo -e ""
+    echo -e "  SOLUTION: Defragment and clean up ETCD."
+    echo -e ""
+}
+
+space_check() {
+    echo -e ""
+    for member in $(ls |grep -v "revision"|grep -v "quorum"); do
+      etcd_space $member
+    done
+    echo -e ""
+    echo -e "  Found together $SPACE 'database space exceeded' messages."
+    if [[ $SPACE -ne "0" ]];then
+        space_solution
+    fi
 }
 
 
 overload_check
 ntp_check
 heart_check
-
+space_check
 
 
 
@@ -238,24 +259,10 @@ heart_check
 for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     echo -e "- $member ----------------"
     echo -e ""
-
-
-
     
-    HEART=$(cat $member/etcd/etcd/logs/current.log|grep 'failed to send out heartbeat on time'|wc -l)
     SPACE=$(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l)
     LEADER=$(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l)
 
-
-    
-
-
-
-    if [ "$HEART" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $HEART failed to send out heartbeat on time messages!"
-      echo -e "  SOLUTION: Usually this issue is caused by a slow disk. The disk could be experiencing contention among ETCD and other applications, or the disk is too simply slow."
-      echo -e ""
-    fi
 
     if [ "$SPACE" != "0" ]; then
       echo -e "  ${RED}[WARNING]${NONE} we found $SPACE database space exceeded messages!"
@@ -266,10 +273,6 @@ for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     fi
 
     echo -e ""
-
-    # echo -e "[$filename]"
-    # cat $filename |grep node-role|grep -w "node-role.kubernetes.io/master:"
-    # [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/master:')" ] && MASTER+=("$filename") && NODES+=("$filename [master]") || true
 done
 
 
