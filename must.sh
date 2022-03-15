@@ -54,7 +54,7 @@ help_etcd_objects() {
   echo -e ""
 }
 
-help_etcd_objects
+# help_etcd_objects
 
 
 for filename in *.yaml; do
