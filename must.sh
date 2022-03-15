@@ -18,7 +18,8 @@ cd $MUST_PATH
 cd $(echo */)
 # ls
 
-cat cluster-scoped-resources/config.openshift.io/clusterversions.yaml |grep "Cluster version is"
+OCP_VERSION=$(cat cluster-scoped-resources/config.openshift.io/clusterversions.yaml |grep "Cluster version is"| grep -Po "(\d+\.)+\d+")
+echo -e "Cluster version is $OCP_VERSION"
 echo -e ""
 
 cd cluster-scoped-resources/core/nodes
@@ -150,6 +151,29 @@ etcd_leader() {
       echo -e "  ${RED}[WARNING]${NONE} we found $LEADER 'leader changed' in $1"
       LD=$(($LD+$LEADER))
     fi
+}
+
+
+etcd_compaction() {
+
+  echo -e "Compaction on $1"
+  case "${OCP_VERSION}" in
+  4.9*|4.8*)
+    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)*"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -6
+    # ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)*"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -10
+    ;;
+  4.7*)
+    #echo -e "${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep \"compaction\"| grep -E \"[0-9]+(.[0-9]+)*\"|cut -d \" \" -f13| cut -d ')' -f 1 |sort|tail -10"
+    cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6
+    ;;
+  4.6*)
+    cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6 #was f12, but doesnt work on some gathers
+    ;;
+  *)
+    echo -e "unknown version ${OCP_VERSION} !"
+    ;;
+  esac
+  echo -e ""
 }
 
 
@@ -289,15 +313,17 @@ leader_check() {
 }
 
 compaction_check() {
-    # echo -e ""
-    for member in $(ls |grep -v "revision"|grep -v "quorum"); do
-      etcd_compaction $member
-    done
-    echo -e ""
-    # echo -e "  Found together $LD 'leader changed' messages."
-    # if [[ $LD -ne "0" ]];then
-    #     leader_solution
-    # fi
+  echo -e "-- ETCD COMPACTION ---------------------------------"
+  echo -e "should be ideally below 100ms (and below 10ms on fast SSD/NVMe)"
+  echo -e ""
+  for member in $(ls |grep -v "revision"|grep -v "quorum"); do
+    etcd_compaction $member
+  done
+  echo -e ""
+  # echo -e "  Found together $LD 'leader changed' messages."
+  # if [[ $LD -ne "0" ]];then
+  #     leader_solution
+  # fi
 }
 
 
@@ -306,7 +332,7 @@ ntp_check
 heart_check
 space_check
 leader_check
-
+compaction_check
 
 
 

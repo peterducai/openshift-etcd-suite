@@ -20,3 +20,7 @@ To modify an Amazon EBS volume using the AWS Management Console:
 
 
 https://aws.amazon.com/it/blogs/storage/migrate-your-amazon-ebs-volumes-from-gp2-to-gp3-and-save-up-to-20-on-costs/
+
+
+
+https://docs.openshift.com/container-platform/4.9/scalability_and_performance/planning-your-environment-according-to-object-maximums.html
