@@ -54,6 +54,11 @@ help_etcd_objects() {
   echo -e ""
 }
 
+help_networking() {
+  echo -e "> ip -s link show"
+  echo -e '> curl -k https://api.<OCP URL>.com -w "%{time_connect}\n"'
+}
+
 # help_etcd_objects
 
 
@@ -139,6 +144,14 @@ etcd_space() {
     fi
 }
 
+etcd_leader() {
+  LEADER=$(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l)
+      if [ "$LEADER" != "0" ]; then
+      echo -e "  ${RED}[WARNING]${NONE} we found $LEADER 'leader changed' in $1"
+      LD=$(($LD+$LEADER))
+    fi
+}
+
 
 
 # MAIN FUNCS
@@ -150,9 +163,9 @@ overload_solution() {
 
 
 overload_check() {
-    echo -e ""
-    echo -e "[ETCD - looking for 'server is likely overloaded' messages.]"
-    echo -e ""
+    # echo -e ""
+    # echo -e "[ETCD - looking for 'server is likely overloaded' messages.]"
+    # echo -e ""
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_overload $member
     done
@@ -170,7 +183,7 @@ tooklong_solution() {
 }
 
 tooklong_check() {
-    echo -e ""
+    # echo -e ""
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_took_too_long $member
     done
@@ -192,19 +205,19 @@ ntp_solution() {
 }
 
 ntp_check() {
-    echo -e ""
-    echo -e "[ETCD - looking for 'rafthttp: the clock difference against peer XXXX is too high' messages.]"
-    echo -e ""
+    # echo -e ""
+    # echo -e "[ETCD - looking for 'rafthttp: the clock difference against peer XXXX is too high' messages.]"
+    # echo -e ""
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_ntp $member
     done
     echo -e ""
     if [[ $NTP -eq "0" ]];then
-        echo -e "  Found together $NTP NTP out of sync messages.  OK"
+        echo -e "  Found zero NTP out of sync messages.  OK"
     else
         echo -e "  Found together $NTP NTP out of sync messages."
     fi
-    
+    echo -e ""
     if [[ $NTP -ne "0" ]];then
         overload_solution
     fi
@@ -217,12 +230,17 @@ heart_solution() {
 }
 
 heart_check() {
-    echo -e ""
+    # echo -e ""
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_heart $member
     done
+    echo -e ""    
+    if [[ $HEART -eq "0" ]];then
+        echo -e "  Found zero 'failed to send out heartbeat on time' messages.  OK"
+    else
+        echo -e "  Found together $HR 'failed to send out heartbeat on time' messages."
+    fi
     echo -e ""
-    echo -e "  Found together $HEART 'failed to send out heartbeat on time' messages."
     if [[ $HEART -ne "0" ]];then
         heart_solution
     fi
@@ -235,15 +253,51 @@ space_solution() {
 }
 
 space_check() {
-    echo -e ""
+    # echo -e ""
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_space $member
     done
     echo -e ""
-    echo -e "  Found together $SPACE 'database space exceeded' messages."
+    if [[ $SP -eq "0" ]];then
+        echo -e "  Found zero 'database space exceeded' messages.  OK"
+    else
+        echo -e "  Found together $SP 'database space exceeded' messages."
+    fi
+    echo -e ""
     if [[ $SPACE -ne "0" ]];then
         space_solution
     fi
+}
+
+
+leader_solution() {
+    echo -e ""
+    echo -e "  SOLUTION: Defragment and clean up ETCD."
+    echo -e ""
+}
+
+leader_check() {
+    # echo -e ""
+    for member in $(ls |grep -v "revision"|grep -v "quorum"); do
+      etcd_leader $member
+    done
+    echo -e ""
+    echo -e "  Found together $LD 'leader changed' messages."
+    if [[ $LD -ne "0" ]];then
+        leader_solution
+    fi
+}
+
+compaction_check() {
+    # echo -e ""
+    for member in $(ls |grep -v "revision"|grep -v "quorum"); do
+      etcd_compaction $member
+    done
+    echo -e ""
+    # echo -e "  Found together $LD 'leader changed' messages."
+    # if [[ $LD -ne "0" ]];then
+    #     leader_solution
+    # fi
 }
 
 
@@ -251,29 +305,21 @@ overload_check
 ntp_check
 heart_check
 space_check
+leader_check
 
 
 
 
+# for member in $(ls |grep -v "revision"|grep -v "quorum"); do
+#     echo -e "- $member ----------------"
+#     echo -e ""
 
-for member in $(ls |grep -v "revision"|grep -v "quorum"); do
-    echo -e "- $member ----------------"
-    echo -e ""
-    
-    SPACE=$(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l)
-    LEADER=$(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l)
+#     if [ "$LEADER" != "0" ]; then
+#       echo -e "  ${RED}[WARNING]${NONE} we found $LEADER leader changed messages!"
+#     fi
 
-
-    if [ "$SPACE" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $SPACE database space exceeded messages!"
-    fi
-
-    if [ "$LEADER" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $LEADER leader changed messages!"
-    fi
-
-    echo -e ""
-done
+#     echo -e ""
+# done
 
 
 echo -e ""
