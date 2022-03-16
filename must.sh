@@ -332,7 +332,7 @@ space_check() {
 
 leader_solution() {
     echo -e ""
-    echo -e "SOLUTION: Defragment and clean up ETCD."
+    echo -e "SOLUTION: Defragment and clean up ETCD. Also consider faster storage."
     echo -e ""
 }
 
