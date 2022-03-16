@@ -349,13 +349,13 @@ compaction_check() {
   # fi
 }
 
-
+compaction_check
 overload_check
 ntp_check
 heart_check
 space_check
 leader_check
-compaction_check
+
 
 
 
