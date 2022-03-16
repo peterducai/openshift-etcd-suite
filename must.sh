@@ -308,7 +308,7 @@ heart_check() {
 
 space_solution() {
     echo -e ""
-    echo -e "SOLUTION: Defragment and clean up ETCD."
+    echo -e "SOLUTION: Defragment and clean up ETCD, remove unused secrets or deployments."
     echo -e ""
 }
 
