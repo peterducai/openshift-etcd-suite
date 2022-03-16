@@ -217,7 +217,7 @@ etcd_compaction() {
 # MAIN FUNCS
 
 overload_solution() {
-    echo -e "  SOLUTION: Review ETCD and CPU metrics as this could be caused by CPU bottleneck or slow disk."
+    echo -e "SOLUTION: Review ETCD and CPU metrics as this could be caused by CPU bottleneck or slow disk."
     echo -e ""
 }
 
@@ -238,7 +238,7 @@ overload_check() {
 
 tooklong_solution() {
     echo -e ""
-    echo -e "  SOLUTION: Even with a slow mechanical disk or a virtualized network disk, applying a request should normally take fewer than 50 milliseconds (and around 5ms for fast SSD/NVMe disk)."
+    echo -e "SOLUTION: Even with a slow mechanical disk or a virtualized network disk, applying a request should normally take fewer than 50 milliseconds (and around 5ms for fast SSD/NVMe disk)."
     echo -e ""
 }
 
@@ -285,7 +285,7 @@ ntp_check() {
 
 heart_solution() {
     echo -e ""
-    echo -e "  SOLUTION: Usually this issue is caused by a slow disk. The disk could be experiencing contention among ETCD and other applications, or the disk is too simply slow."
+    echo -e "SOLUTION: Usually this issue is caused by a slow disk. The disk could be experiencing contention among ETCD and other applications, or the disk is too simply slow."
     echo -e ""
 }
 
