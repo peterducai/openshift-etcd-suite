@@ -353,7 +353,7 @@ leader_check() {
 }
 
 compaction_check() {
-  echo -e "-- ETCD COMPACTION ---------------------------------"
+  echo -e "-- ETCD COMPACTION ---"
   echo -e ""
   echo -e "should be ideally below 100ms (and below 10ms on fast SSD/NVMe)"
   echo -e ""
@@ -368,6 +368,8 @@ compaction_check() {
 }
 
 compaction_check
+echo -e ""
+echo -e "- ERROR CHECK ---"
 overload_check
 ntp_check
 heart_check
