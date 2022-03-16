@@ -39,6 +39,8 @@ WORKER=()
 
 help_etcd_objects() {
   echo -e ""
+  echo -e "- Number of objects ---"
+  echo -e ""
   echo -e "List number of objects in ETCD:"
   echo -e ""
   echo -e "oc rsh <etcd pod> -n openshift-etcd -c etcd"
@@ -55,9 +57,30 @@ help_etcd_objects() {
   echo -e ""
 }
 
-help_networking() {
+help_etcd_troubleshoot() {
+  echo -e ""
+  echo -e "- Generic troubleshooting ---"
+  echo -e ""
+  echo -e "More details about troubleshooting ETCD can be found at https://access.redhat.com/articles/6271341"
+}
+
+help_etcd_metrics() {
+  echo -e ""
+  echo -e "- ETCD metrics ---"
+  echo -e ""
+  echo -e "How to collect ETCD metrics. https://access.redhat.com/solutions/5489721"
+}
+
+help_etcd_networking() {
+  echo -e ""
+  echo -e "- ETCD networking troubleshooting ---"
+  echo -e ""
+  echo -e "From masters check if there are no dropped packets or RX/TX errors on main NIC."
   echo -e "> ip -s link show"
-  echo -e '> curl -k https://api.<OCP URL>.com -w "%{time_connect}\n"'
+  echo -e ""
+  echo -e "but also check latency against API (expected value is 2-5ms, 0.002-0.005 in output)"
+  echo -e "> curl -k https://api.<OCP URL>.com -w \"%{time_connect}\""
+  echo -e "Any higher latency could mean network bottleneck."
 }
 
 # help_etcd_objects
@@ -353,3 +376,10 @@ echo -e "[NETWORKING]"
 cd ../../../cluster-scoped-resources/network.openshift.io/clusternetworks/
 cat default.yaml |grep CIDR
 cat default.yaml | grep serviceNetwork
+
+echo -e ""
+echo -e "ADDITIONAL HELP:"
+help_etcd_troubleshoot
+help_etcd_metrics
+help_etcd_networking
+help_etcd_objects
