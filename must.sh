@@ -125,6 +125,7 @@ OVRL=0
 NTP=0
 HR=0
 TK=0
+LED=0
 
 etcd_overload() {
     OVERLOAD=$(cat $1/etcd/etcd/logs/current.log|grep 'overload'|wc -l)
@@ -138,7 +139,7 @@ etcd_overload() {
 etcd_took_too_long() {
     TOOK=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|wc -l)
     if [ "$TOOK" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $TOOK took too long messages in $1"
+      echo -e "${RED}[WARNING]${NONE} we found $TOOK took too long messages in $1"
       TK=$(($TK+$TOOK))
       echo -e ""
     fi
@@ -147,7 +148,7 @@ etcd_took_too_long() {
 etcd_ntp() {
     CLOCK=$(cat $1/etcd/etcd/logs/current.log|grep 'clock difference'|wc -l)
     if [ "$CLOCK" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $CLOCK ntp clock difference messages in $1"
+      echo -e "${RED}[WARNING]${NONE} we found $CLOCK ntp clock difference messages in $1"
       NTP=$(($NTP+$CLOCK))
     fi
 }
@@ -155,7 +156,7 @@ etcd_ntp() {
 etcd_heart() {
     HEART=$(cat $1/etcd/etcd/logs/current.log|grep 'failed to send out heartbeat on time'|wc -l)
     if [ "$HEART" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $HEART failed to send out heartbeat on time messages in $1"
+      echo -e "${RED}[WARNING]${NONE} we found $HEART failed to send out heartbeat on time messages in $1"
       HR=$(($HR+$HEART))
     fi
 }
@@ -163,7 +164,7 @@ etcd_heart() {
 etcd_space() {
     SPACE=$(cat $member/etcd/etcd/logs/current.log|grep 'database space exceeded'|wc -l)
     if [ "$SPACE" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $SPACE 'database space exceeded' in $1"
+      echo -e "${RED}[WARNING]${NONE} we found $SPACE 'database space exceeded' in $1"
       SP=$(($SP+$SPACE))
     fi
 }
@@ -171,8 +172,8 @@ etcd_space() {
 etcd_leader() {
   LEADER=$(cat $member/etcd/etcd/logs/current.log|grep 'leader changed'|wc -l)
       if [ "$LEADER" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $LEADER 'leader changed' in $1"
-      LD=$(($LD+$LEADER))
+      echo -e "${RED}[WARNING]${NONE} we found $LEADER 'leader changed' in $1"
+      LED=$(($LED+$LEADER))
     fi
 }
 
@@ -182,15 +183,27 @@ etcd_compaction() {
   echo -e "Compaction on $1"
   case "${OCP_VERSION}" in
   4.9*|4.8*)
-    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)*"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -6
+    echo -e "[highest seconds]"
+    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)s"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -6
+    echo -e ""
+    echo -e "[highest ms]"
+    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -6
+    
     # ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)*"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -10
     ;;
   4.7*)
-    #echo -e "${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep \"compaction\"| grep -E \"[0-9]+(.[0-9]+)*\"|cut -d \" \" -f13| cut -d ')' -f 1 |sort|tail -10"
-    cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6
+    echo -e "[highest seconds]"
+    cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)s"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6
+    echo -e ""
+    echo -e "[highest ms]"
+    cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)ms"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6
     ;;
   4.6*)
-    cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)*"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6 #was f12, but doesnt work on some gathers
+    echo -e "[highest seconds]"
+    cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)s"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6 #was f12, but doesnt work on some gathers
+    echo -e ""
+    echo -e "[highest seconds]"
+    cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)ms"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6 #was f12, but doesnt work on some gathers
     ;;
   *)
     echo -e "unknown version ${OCP_VERSION} !"
@@ -216,7 +229,7 @@ overload_check() {
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_overload $member
     done
-    echo -e "  Found together $OVRL overloaded messages."
+    echo -e "Found together $OVRL overloaded messages.  OK"
     echo -e ""
     if [[ $OVRL -ne "0" ]];then
         overload_solution
@@ -235,7 +248,7 @@ tooklong_check() {
       etcd_took_too_long $member
     done
     echo -e ""
-    echo -e "  Found together $TK 'took too long' messages."
+    echo -e "Found together $TK 'took too long' messages.  OK"
     if [[ $TK -ne "0" ]];then
         tooklong_solution
     fi
@@ -260,9 +273,9 @@ ntp_check() {
     done
     echo -e ""
     if [[ $NTP -eq "0" ]];then
-        echo -e "  Found zero NTP out of sync messages.  OK"
+        echo -e "Found zero NTP out of sync messages.  OK"
     else
-        echo -e "  Found together $NTP NTP out of sync messages."
+        echo -e "Found together $NTP NTP out of sync messages."
     fi
     echo -e ""
     if [[ $NTP -ne "0" ]];then
@@ -283,9 +296,9 @@ heart_check() {
     done
     echo -e ""    
     if [[ $HEART -eq "0" ]];then
-        echo -e "  Found zero 'failed to send out heartbeat on time' messages.  OK"
+        echo -e "Found zero 'failed to send out heartbeat on time' messages.  OK"
     else
-        echo -e "  Found together $HR 'failed to send out heartbeat on time' messages."
+        echo -e "Found together $HR 'failed to send out heartbeat on time' messages."
     fi
     echo -e ""
     if [[ $HEART -ne "0" ]];then
@@ -295,7 +308,7 @@ heart_check() {
 
 space_solution() {
     echo -e ""
-    echo -e "  SOLUTION: Defragment and clean up ETCD."
+    echo -e "SOLUTION: Defragment and clean up ETCD."
     echo -e ""
 }
 
@@ -306,9 +319,9 @@ space_check() {
     done
     echo -e ""
     if [[ $SP -eq "0" ]];then
-        echo -e "  Found zero 'database space exceeded' messages.  OK"
+        echo -e "Found zero 'database space exceeded' messages.  OK"
     else
-        echo -e "  Found together $SP 'database space exceeded' messages."
+        echo -e "Found together $SP 'database space exceeded' messages."
     fi
     echo -e ""
     if [[ $SPACE -ne "0" ]];then
@@ -319,7 +332,7 @@ space_check() {
 
 leader_solution() {
     echo -e ""
-    echo -e "  SOLUTION: Defragment and clean up ETCD."
+    echo -e "SOLUTION: Defragment and clean up ETCD."
     echo -e ""
 }
 
@@ -329,22 +342,27 @@ leader_check() {
       etcd_leader $member
     done
     echo -e ""
-    echo -e "  Found together $LD 'leader changed' messages."
-    if [[ $LD -ne "0" ]];then
+    if [[ $LED -eq "0" ]];then
+        echo -e "Found zero 'leader changed' messages.  OK"
+    else
+        echo -e "Found together $LED 'leader changed' messages."
+    fi
+    if [[ $LED -ne "0" ]];then
         leader_solution
     fi
 }
 
 compaction_check() {
   echo -e "-- ETCD COMPACTION ---------------------------------"
+  echo -e ""
   echo -e "should be ideally below 100ms (and below 10ms on fast SSD/NVMe)"
   echo -e ""
   for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     etcd_compaction $member
   done
   echo -e ""
-  # echo -e "  Found together $LD 'leader changed' messages."
-  # if [[ $LD -ne "0" ]];then
+  # echo -e "  Found together $LED 'leader changed' messages."
+  # if [[ $LED -ne "0" ]];then
   #     leader_solution
   # fi
 }
