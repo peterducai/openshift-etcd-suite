@@ -202,7 +202,7 @@ etcd_compaction() {
     echo -e "[highest seconds]"
     cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)s"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6 #was f12, but doesnt work on some gathers
     echo -e ""
-    echo -e "[highest seconds]"
+    echo -e "[highest ms]"
     cat $1/etcd/etcd/logs/current.log | grep "compaction"| grep -E "[0-9]+(.[0-9]+)ms"|cut -d " " -f13| cut -d ')' -f 1 |sort|tail -6 #was f12, but doesnt work on some gathers
     ;;
   *)
