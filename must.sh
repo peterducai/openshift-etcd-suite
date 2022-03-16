@@ -130,7 +130,7 @@ LED=0
 etcd_overload() {
     OVERLOAD=$(cat $1/etcd/etcd/logs/current.log|grep 'overload'|wc -l)
     if [ "$OVERLOAD" != "0" ]; then
-      echo -e "  ${RED}[WARNING]${NONE} we found $OVERLOAD 'server is likely overloaded' messages in $1"
+      echo -e "${RED}[WARNING]${NONE} we found $OVERLOAD 'server is likely overloaded' messages in $1"
       echo -e ""
       OVRL=$(($OVRL+$OVERLOAD))
     fi
@@ -229,7 +229,7 @@ overload_check() {
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_overload $member
     done
-    echo -e "Found together $OVRL overloaded messages.  OK"
+    echo -e "Found together $OVRL 'server is likely overloaded' messages."
     echo -e ""
     if [[ $OVRL -ne "0" ]];then
         overload_solution
@@ -258,9 +258,9 @@ tooklong_check() {
 
 ntp_solution() {
     echo -e ""
-    echo -e "  SOLUTION: When clocks are out of sync with each other they are causing I/O timeouts and the liveness probe is failing which makes the ETCD pod to restart frequently. Check if Chrony is enabled, running, and in sync with:"
-    echo -e "            - chronyc sources"
-    echo -e "            - chronyc tracking"
+    echo -e "SOLUTION: When clocks are out of sync with each other they are causing I/O timeouts and the liveness probe is failing which makes the ETCD pod to restart frequently. Check if Chrony is enabled, running, and in sync with:"
+    echo -e "          - chronyc sources"
+    echo -e "          - chronyc tracking"
     echo -e ""
 }
 
@@ -279,7 +279,7 @@ ntp_check() {
     fi
     echo -e ""
     if [[ $NTP -ne "0" ]];then
-        overload_solution
+        ntp_solution
     fi
 }
 
