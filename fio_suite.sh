@@ -54,12 +54,12 @@ echo -e " "
 echo -e "-- [ SINGLE JOB, 70% read, 30% write] --"
 echo -e " "
 
-fio --name=global3 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read3 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=4 --blocksize=4k --size=1G --percentage_random=0 > r70_w30_1G_d4.log
+fio --name=global3 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read3 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=1 --blocksize=4k --size=1G --percentage_random=0 > r70_w30_1G_d4.log
 s7030big=$(cat r70_w30_1G_d4.log |grep IOPS|tail -1)
 echo -e "$s7030big"
 rm r70_w30_1G_d4.log
 
-fio --name=global3 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read3 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=4 --blocksize=4k --size=200M > r70_w30_200M_d4.log
+fio --name=global3 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read3 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=1 --blocksize=4k --size=200M > r70_w30_200M_d4.log
 s7030small=$(cat r70_w30_200M_d4.log |grep IOPS|tail -1)
 echo -e "$s7030small"
 rm r70_w30_200M_d4.log
@@ -80,20 +80,20 @@ rm r30_w70_1G_d1.log
 rm fiotest
 
 
-echo -e "-- [ 8 PARALLEL JOBS, 70% read, 30% write] --"
+echo -e "-- [ 8 PARALLEL JOBS, 70% read, 30% write] ----"
 echo -e " "
 
-fio --name=global3 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read3  --numjobs=8 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=4 --blocksize=4k --size=1G --percentage_random=0 > r70_w30_1G_d4.log
+fio --name=global3 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read3  --numjobs=8 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=1 --blocksize=4k --size=1G --percentage_random=0 > r70_w30_1G_d4.log
 s7030big=$(cat r70_w30_1G_d4.log |grep IOPS|tail -1)
 echo -e "$s7030big"
 rm r70_w30_1G_d4.log
 
-fio --name=global3 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read3  --numjobs=8 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=4 --blocksize=4k --size=200M > r70_w30_200M_d4.log
+fio --name=global3 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read3  --numjobs=8 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=1 --blocksize=4k --size=200M > r70_w30_200M_d4.log
 s7030small=$(cat r70_w30_200M_d4.log |grep IOPS|tail -1)
 echo -e "$s7030small"
 rm r70_w30_200M_d4.log
 
-echo -e "-- [ 8 PARALLEL JOBS, 30% read, 70% write] --"
+echo -e "-- [ 8 PARALLEL JOBS, 30% read, 70% write] ----"
 echo -e " "
 
 fio --name=global5 --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read5  --numjobs=8 --readwrite=rw --rwmixread=30 --rwmixwrite=70 --iodepth=1 --blocksize=4k --size=200M  > r30_w70_200M_d1.log
