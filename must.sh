@@ -248,7 +248,11 @@ tooklong_check() {
       etcd_took_too_long $member
     done
     echo -e ""
-    echo -e "Found together $TK 'took too long' messages.  OK"
+    if [[ $TK -eq "0" ]];then
+        echo -e "Found zero 'took too long' messages.  OK"
+    else
+        echo -e "Found together $TK 'took too long' messages."
+    fi
     if [[ $TK -ne "0" ]];then
         tooklong_solution
     fi
@@ -371,6 +375,7 @@ compaction_check
 echo -e ""
 echo -e "- ERROR CHECK ---"
 overload_check
+tooklong_check
 ntp_check
 heart_check
 space_check
