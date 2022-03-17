@@ -17,21 +17,21 @@ ETCD script will make collect info from ETCD pods, make little summary and searc
 Fastest way to use it with must-gather is 
 
 ```
-alias etcdcheck='podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest etcd omc'
+alias etcdcheck='podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest etcd '
 etcdcheck /test/<path to must-gather>
 ```
+
+**You dont have to use full path, but /test/ is important**
 
 You can either do *oc login* and then run
 
 > chmod +x etcd.sh && ./etcd.sh
 
-or you can use it with [omc](https://github.com/gmeghnag/omc) and must-gather (omc should be either in /usr/bin or $HOME/bin directory)
-
-> ./etcd.sh omc /some_path/must-gather.folder
+> ./etcd.sh /\<path-to-must-gather\>
 
 or 
 
-> podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest etcd omc /test/path-to-must-gather
+> podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest etcd /test/\<path-to-must-gather\>
 
 
 ## fio_suite
