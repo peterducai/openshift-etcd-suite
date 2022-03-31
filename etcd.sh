@@ -51,7 +51,7 @@ help_etcd_objects() {
   echo -e ""
   echo -e "List secrets per namespace:"
   echo -e ""
-  echo -e "> oc get secrets -A --no-headers | awk '{ns[$1]++}END{for (i in ns) print i,ns[i]}'"
+  echo -e "> oc get secrets -A --no-headers | awk '{ns[\$1]++}END{for (i in ns) print i,ns[i]}'"
   echo -e ""
   echo -e "[HINT] Any namespace with 20+ secrets should be cleaned up (unless there's specific customer need for so many secrets)."
   echo -e ""
