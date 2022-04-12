@@ -24,3 +24,6 @@ https://aws.amazon.com/it/blogs/storage/migrate-your-amazon-ebs-volumes-from-gp2
 
 
 https://docs.openshift.com/container-platform/4.9/scalability_and_performance/planning-your-environment-according-to-object-maximums.html
+
+
+https://aws.amazon.com/it/blogs/storage/migrate-your-amazon-ebs-volumes-from-gp2-to-gp3-and-save-up-to-20-on-costs/
