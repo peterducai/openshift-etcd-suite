@@ -182,7 +182,7 @@ etcd_compaction() {
 
   echo -e "Compaction on $1"
   case "${OCP_VERSION}" in
-  4.9*|4.8*)
+  4.9*|4.8*|4.10*)
     echo -e "[highest seconds]"
     cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)s"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -6
     echo -e ""
