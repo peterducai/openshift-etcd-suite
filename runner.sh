@@ -10,6 +10,9 @@ case "$1" in
   fio)
     ./fio_suite.sh
     ;;
+  fio2)
+    ./fio_suite2.sh
+    ;;
   *)
     echo -e "NO PARAMS. Choose 'etcd' or 'fio' or 'toolong'"
     ;;

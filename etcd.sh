@@ -371,6 +371,8 @@ compaction_check() {
   # fi
 }
 
+# timed out waiting for read index response (local node might have slow network)
+
 compaction_check
 echo -e ""
 echo -e "- ERROR CHECK ---"
