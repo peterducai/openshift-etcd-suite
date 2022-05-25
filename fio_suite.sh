@@ -17,14 +17,14 @@ echo -e "- [MAX CONCURRENT READ] ---"
 echo -e "This job is a read-heavy workload with lots of parallelism that is likely to show off the device's best throughput:"
 echo -e " "
 
-/usr/bin/fio --name=maxoneg --size=1G --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read1 --iodepth=16 --readwrite=randread --numjobs=16 --blocksize=64k --offset_increment=128m > best_1G_d4.log
+/usr/bin/fio  --size=1G --name=maxoneg --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read1 --iodepth=16 --readwrite=randread --numjobs=16 --blocksize=64k --offset_increment=128m > best_1G_d4.log
 best_large=$(cat best_1G_d4.log |grep IOPS|tail -1)
 echo -e "$best_large"
 rm fiotest
 rm best_1G_d4.log
 
 
-/usr/bin/fio --name=maxonemb --size=200M --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read1 --iodepth=16 --readwrite=randread --numjobs=16 --blocksize=64k --offset_increment=128m  > best_200M_d4.log
+/usr/bin/fio --size=200M --name=maxonemb --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10 --name=read1 --iodepth=16 --readwrite=randread --numjobs=16 --blocksize=64k --offset_increment=128m  > best_200M_d4.log
 best_small=$(cat best_200M_d4.log |grep IOPS|tail -1)
 echo -e "$best_small"
 rm best_200M_d4.log
