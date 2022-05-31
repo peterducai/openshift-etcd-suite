@@ -34,6 +34,14 @@ or
 > podman run --privileged --volume /$(pwd):/test quay.io/peterducai/openshift-etcd-suite:latest etcd /test/\<path-to-must-gather\>
 
 
+## snap_diff.sh script
+
+This can be used to debug why a database file is bigger compared to some snapshot before. It creates a diff between the keys to understand where such increase might come from.
+
+> ./snap_diff.sh first.snapshot second.snapshot diff.txt
+
+the qualified diff in keys can be found in a newly created file `diff.txt`.
+
 ## fio_suite
 
 fio_suite is benchmark tool which runs several fio tests to see how IOPS change under different load.
