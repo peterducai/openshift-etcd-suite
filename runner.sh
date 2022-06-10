@@ -10,8 +10,40 @@ case "$1" in
   fio)
     ./fio_suite.sh
     ;;
-  fio2)
-    ./fio_suite2.sh
+  full)
+    ./iostat.sh &
+    ./top.sh &
+    sleep 1
+    ./fio_suite2.sh &  > fio.log
+    wait
+    echo "All tests are complete"
+    echo -e ""
+    echo -e "RESULTS:"
+    cat top.log
+    echo -e ""
+    cat iostat.log
+    echo -e ""
+    cat r70_w30_1G_d4.log
+    echo -e ""
+    cat r70_w30_200M_d4.log
+    echo -e ""
+    cat r30_w70_200M_d1.log
+    echo -e ""
+    cat r30_w70_1G_d1.log
+    echo -e ""
+    cat r70_w30_1G_d4.log
+    echo -e ""
+    cat r30_w70_200M_d1.log
+    echo -e ""
+    cat r30_w70_1G_d1.log
+    #
+    rm r70_w30_1G_d4.log
+    rm r70_w30_200M_d4.log
+    rm r30_w70_200M_d1.log
+    rm r30_w70_1G_d1.log
+    rm r70_w30_1G_d4.log
+    rm r30_w70_200M_d1.log
+    rm r30_w70_1G_d1.log
     ;;
   *)
     echo -e "NO PARAMS. Choose 'etcd' or 'fio' or 'toolong'"
