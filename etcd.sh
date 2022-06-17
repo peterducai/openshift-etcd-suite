@@ -131,8 +131,11 @@ LED=0
 
 etcd_overload() {
     OVERLOAD=$(cat $1/etcd/etcd/logs/current.log|grep 'overload'|wc -l)
+    LAST=$(cat $1/etcd/etcd/logs/current.log|grep 'overload'|tail -1)
     if [ "$OVERLOAD" != "0" ]; then
       echo -e "${RED}[WARNING]${NONE} we found $OVERLOAD 'server is likely overloaded' messages in $1"
+      echo -e "Last occurrence:"
+      echo -e "$LAST"
       echo -e ""
       OVRL=$(($OVRL+$OVERLOAD))
     fi
@@ -140,8 +143,11 @@ etcd_overload() {
 
 etcd_took_too_long() {
     TOOK=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|wc -l)
+    SUMMARY=$(cat $1/etcd/etcd/logs/current.log |awk -v min=999 '/took too long/ {t++} /context deadline exceeded/ {b++} /finished scheduled compaction/ {gsub("\"",""); sub("ms}",""); split($0,a,":"); if (a[12]<min) min=a[12]; if (a[12]>max) max=a[12]; avg+=a[12]; c++} END{printf "took too long: %d\ndeadline exceeded: %d\n",t,b; printf "compaction times:\n  min: %d\n  max: %d\n  avg:%d\n",min,max,avg/c}'
+)
     if [ "$TOOK" != "0" ]; then
       echo -e "${RED}[WARNING]${NONE} we found $TOOK took too long messages in $1"
+      echo -e "$SUMMARY"
       TK=$(($TK+$TOOK))
       echo -e ""
     fi
@@ -186,11 +192,13 @@ etcd_compaction() {
   case "${OCP_VERSION}" in
   4.9*|4.8*|4.10*)
     echo -e "[highest seconds]"
-    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)s"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -6
+    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)s"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -4
     echo -e ""
     echo -e "[highest ms]"
-    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -6
-    
+    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -4
+    echo -e ""
+    echo -e "last occurrence:"
+    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|tail -8
     # ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)*"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -10
     ;;
   4.7*)
