@@ -103,7 +103,7 @@ for filename in *.yaml; do
     [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/worker:')" ] && WORKER+=("$filename")  && NODES+=("$filename [worker]") || true
 done
 
-echo -e " --------------- "
+echo -e ""
 # echo ${NODES[@]}
 
 echo -e "${#MASTER[@]} masters"
@@ -132,16 +132,23 @@ LED=0
 etcd_overload() {
     OVERLOAD=$(cat $1/etcd/etcd/logs/current.log|grep 'overload'|wc -l)
     LAST=$(cat $1/etcd/etcd/logs/current.log|grep 'overload'|tail -1)
+    LOGEND=$(cat $1/etcd/etcd/logs/current.log|tail -1)
     if [ "$OVERLOAD" != "0" ]; then
       echo -e "${RED}[WARNING]${NONE} we found $OVERLOAD 'server is likely overloaded' messages in $1"
       echo -e "Last occurrence:"
-      echo -e "$LAST"
+      echo -e "$LAST"| cut -d " " -f1
+      echo -e "Log ends at "
+      echo -e "$LOGEND"| cut -d " " -f1
       echo -e ""
       OVRL=$(($OVRL+$OVERLOAD))
+    # else
+    #   echo -e "${GREEN}[OK]${NONE} zero messages in $1"
     fi
 }
 
 etcd_took_too_long() {
+    # MS=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|tail -1)
+    # echo $MS
     TOOK=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|wc -l)
     SUMMARY=$(cat $1/etcd/etcd/logs/current.log |awk -v min=999 '/took too long/ {t++} /context deadline exceeded/ {b++} /finished scheduled compaction/ {gsub("\"",""); sub("ms}",""); split($0,a,":"); if (a[12]<min) min=a[12]; if (a[12]>max) max=a[12]; avg+=a[12]; c++} END{printf "took too long: %d\ndeadline exceeded: %d\n",t,b; printf "compaction times:\n  min: %d\n  max: %d\n  avg:%d\n",min,max,avg/c}'
 )
@@ -155,9 +162,16 @@ etcd_took_too_long() {
 
 etcd_ntp() {
     CLOCK=$(cat $1/etcd/etcd/logs/current.log|grep 'clock difference'|wc -l)
+    LASTNTP=$(cat $1/etcd/etcd/logs/current.log|grep 'clock difference'|tail -1)
+    LOGENDNTP=$(cat $1/etcd/etcd/logs/current.log|tail -1)
     if [ "$CLOCK" != "0" ]; then
       echo -e "${RED}[WARNING]${NONE} we found $CLOCK ntp clock difference messages in $1"
       NTP=$(($NTP+$CLOCK))
+      echo -e "Last occurrence:"
+      echo -e "$LASTNTP"| cut -d " " -f1
+      echo -e "Log ends at "
+      echo -e "$LOGENDNTP"| cut -d " " -f1
+      echo -e ""
     fi
 }
 
@@ -188,18 +202,18 @@ etcd_leader() {
 
 etcd_compaction() {
 
-  echo -e "Compaction on $1"
+  echo -e "- $1"
+  # echo -e ""
   case "${OCP_VERSION}" in
   4.9*|4.8*|4.10*)
-    echo -e "[highest seconds]"
+    echo -e "highest:"
     cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)s"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -4
     echo -e ""
-    echo -e "[highest ms]"
+    # echo -e "[highest ms]"
     cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -4
     echo -e ""
-    echo -e "last occurrence:"
-    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|tail -8
-    # ${CLIENT} logs pod/$1 -n ${NS} -c etcd | grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)*"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -10
+    echo -e "last 5:"
+    cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|tail -5
     ;;
   4.7*)
     echo -e "[highest seconds]"
@@ -233,9 +247,9 @@ overload_solution() {
 
 
 overload_check() {
-    # echo -e ""
-    # echo -e "[ETCD - looking for 'server is likely overloaded' messages.]"
-    # echo -e ""
+    echo -e ""
+    echo -e "[OVERLOADED MESSAGES]"
+    echo -e ""
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_overload $member
     done
@@ -253,7 +267,9 @@ tooklong_solution() {
 }
 
 tooklong_check() {
-    # echo -e ""
+    echo -e ""
+    echo -e "[TOOK TOO LONG MESSAGES]"
+    echo -e ""
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_took_too_long $member
     done
@@ -279,9 +295,7 @@ ntp_solution() {
 }
 
 ntp_check() {
-    # echo -e ""
-    # echo -e "[ETCD - looking for 'rafthttp: the clock difference against peer XXXX is too high' messages.]"
-    # echo -e ""
+    echo -e "[NTP MESSAGES]"
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_ntp $member
     done
@@ -327,7 +341,7 @@ space_solution() {
 }
 
 space_check() {
-    # echo -e ""
+    echo -e "[SPACE EXCEEDED MESSAGES]"
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_space $member
     done
@@ -351,7 +365,7 @@ leader_solution() {
 }
 
 leader_check() {
-    # echo -e ""
+    echo -e "[LEADER CHANGED MESSAGES]"
     for member in $(ls |grep -v "revision"|grep -v "quorum"); do
       etcd_leader $member
     done
@@ -367,9 +381,10 @@ leader_check() {
 }
 
 compaction_check() {
-  echo -e "-- ETCD COMPACTION ---"
   echo -e ""
+  echo -e "[COMPACTION]"
   echo -e "should be ideally below 100ms (and below 10ms on fast SSD/NVMe)"
+  echo -e "anything above 300ms could mean serious performance issues (including issues with co login)"
   echo -e ""
   for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     etcd_compaction $member
@@ -384,12 +399,10 @@ compaction_check() {
 # timed out waiting for read index response (local node might have slow network)
 
 compaction_check
-echo -e ""
-echo -e "- ERROR CHECK ---"
 overload_check
 tooklong_check
 ntp_check
-heart_check
+# heart_check
 space_check
 leader_check
 
