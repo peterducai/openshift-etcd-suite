@@ -1,6 +1,10 @@
 #!/bin/bash
 
 MUST_PATH=$1
+STAMP=$(date +%Y-%m-%d_%H-%M-%S)
+REPORT_FOLDER="/home/$USER/$STAMP"
+mkdir -p $REPORT_FOLDER
+echo "created $REPORT_FOLDER"
 
 # TERMINAL COLORS -----------------------------------------------------------------
 
@@ -90,17 +94,17 @@ help_etcd_networking() {
 
 for filename in *.yaml; do
     [ -e "$filename" ] || continue
-    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/master:')" ] && MASTER+=("$filename") && NODES+=("$filename [master]") || true
+    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/master:')" ] && MASTER+=("${filename::-5}") && NODES+=("$filename [master]") || true
 done
 
 for filename in *.yaml; do
     [ -e "$filename" ] || continue
-    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/infra:')" ] && INFRA+=("$filename")  && NODES+=("$filename [infra]") || true
+    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/infra:')" ] && INFRA+=("${filename::-5}")  && NODES+=("$filename [infra]") || true
 done
 
 for filename in *.yaml; do
     [ -e "$filename" ] || continue
-    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/worker:')" ] && WORKER+=("$filename")  && NODES+=("$filename [worker]") || true
+    [ ! -z "$(cat $filename |grep node-role|grep -w 'node-role.kubernetes.io/worker:')" ] && WORKER+=("${filename::-5}")  && NODES+=("$filename [worker]") || true
 done
 
 echo -e ""
@@ -110,9 +114,13 @@ echo -e "${#MASTER[@]} masters"
 if [ "${#MASTER[@]}" != "3" ]; then
   echo -e "[WARNING] only 3 masters are supported, you have ${#MASTER[@]}."
 fi
-
+printf "%s\n" "${MASTER[@]}"
+echo -e ""
 echo -e "${#INFRA[@]} infra nodes"
+printf "%s\n" "${INFRA[@]}"
+echo -e ""
 echo -e "${#WORKER[@]} worker nodes"
+printf "%s\n" "${WORKER[@]}"
 
 # for i in ${NODES[@]}; do echo $i; done
 
@@ -201,11 +209,48 @@ etcd_leader() {
 
 
 etcd_compaction() {
+  #WORKER+=("${filename::-5}")
+  COMPACTIONS_MS=()
+  COMPACTIONS_SEC=()
 
   echo -e "- $1"
   # echo -e ""
   case "${OCP_VERSION}" in
   4.9*|4.8*|4.10*)
+    echo "# compaction" > $REPORT_FOLDER/$1.data
+    for lines in $(cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+');
+    do
+      COMPACTIONS_MS+=("$lines");
+      if [ "$lines" != "}" ]; then
+        echo $lines >> $REPORT_FOLDER/$1.data
+      fi
+    done
+
+    cat > $REPORT_FOLDER/etcd-$1.plg <<- EOM
+#! /usr/bin/gnuplot
+set terminal png
+set title 'ETCD compaction'
+set xlabel 'Time'
+set ylabel 'Compaction'
+
+set autoscale
+set xrange [1:5000]
+set yrange [1:600]
+
+# labels
+set label "- good perf" at 0, 100
+set label "- bad perf" at 0, 300
+set label "- catastrophic perf" at 0, 500
+
+
+plot '$REPORT_FOLDER/$1.data' with lines
+EOM
+
+    gnuplot  $REPORT_FOLDER/etcd-$1.plg > $REPORT_FOLDER/$1compaction_graph.png
+
+    echo "found ${#COMPACTIONS_MS[@]} compaction entries"
+    echo -e ""
+
     echo -e "highest:"
     cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)s"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -4
     echo -e ""
