@@ -228,20 +228,20 @@ etcd_compaction() {
 
     cat > $REPORT_FOLDER/etcd-$1.plg <<- EOM
 #! /usr/bin/gnuplot
+
 set terminal png
 set title 'ETCD compaction'
 set xlabel 'Time'
-set ylabel 'Compaction'
+set ylabel 'Compaction (ms)'
 
 set autoscale
-set xrange [1:5000]
-set yrange [1:600]
+set xrange [1:${#COMPACTIONS_MS[@]}]
+set yrange [1:800]
 
 # labels
-set label "- good perf" at 0, 100
-set label "- bad perf" at 0, 300
-set label "- catastrophic perf" at 0, 500
-
+set label "- GOOD" at 0, 100
+set label "- BAD" at 0, 300
+set label "- SUPER BAD" at 0, 500
 
 plot '$REPORT_FOLDER/$1.data' with lines
 EOM
