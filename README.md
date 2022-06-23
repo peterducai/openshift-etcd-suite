@@ -10,6 +10,8 @@ to build container just run
 
 > buildah bud -t openshift-etcd-suite:latest .
 
+*IMPORTANT*: latest version requires gnuplot and will create <timestamp> folder (with generated charts) in HOME.
+
 ## etcd.sh script
 
 ETCD script will make collect info from ETCD pods, make little summary and search for errors/issues and explains what are expected values.
