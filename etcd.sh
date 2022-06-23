@@ -2,7 +2,7 @@
 
 MUST_PATH=$1
 STAMP=$(date +%Y-%m-%d_%H-%M-%S)
-REPORT_FOLDER="/home/$USER/$STAMP"
+REPORT_FOLDER="/home/$USER/ETCD-SUMMARY_$STAMP"
 mkdir -p $REPORT_FOLDER
 echo "created $REPORT_FOLDER"
 
@@ -155,8 +155,8 @@ etcd_overload() {
 }
 
 etcd_took_too_long() {
-    # MS=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|tail -1)
-    # echo $MS
+    MS=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|tail -1)
+    echo $MS
     TOOK=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|wc -l)
     SUMMARY=$(cat $1/etcd/etcd/logs/current.log |awk -v min=999 '/took too long/ {t++} /context deadline exceeded/ {b++} /finished scheduled compaction/ {gsub("\"",""); sub("ms}",""); split($0,a,":"); if (a[12]<min) min=a[12]; if (a[12]>max) max=a[12]; avg+=a[12]; c++} END{printf "took too long: %d\ndeadline exceeded: %d\n",t,b; printf "compaction times:\n  min: %d\n  max: %d\n  avg:%d\n",min,max,avg/c}'
 )
@@ -208,6 +208,31 @@ etcd_leader() {
 }
 
 
+gnuplot_render() {
+      cat > $REPORT_FOLDER/etcd-$1.plg <<- EOM
+#! /usr/bin/gnuplot
+
+set terminal png
+set title '$3'
+set xlabel '$4'
+set ylabel '$5'
+
+set autoscale
+set xrange [1:$2]
+set yrange [1:800]
+
+# labels
+set label "- GOOD" at 0, 100
+set label "- BAD" at 0, 300
+set label "- SUPER BAD" at 0, 500
+
+plot '$REPORT_FOLDER/$1.data' with lines
+EOM
+
+    gnuplot  $REPORT_FOLDER/etcd-$1.plg > $REPORT_FOLDER/$1compaction_graph.png
+}
+
+
 etcd_compaction() {
   #WORKER+=("${filename::-5}")
   COMPACTIONS_MS=()
@@ -226,27 +251,7 @@ etcd_compaction() {
       fi
     done
 
-    cat > $REPORT_FOLDER/etcd-$1.plg <<- EOM
-#! /usr/bin/gnuplot
-
-set terminal png
-set title 'ETCD compaction'
-set xlabel 'Time'
-set ylabel 'Compaction (ms)'
-
-set autoscale
-set xrange [1:${#COMPACTIONS_MS[@]}]
-set yrange [1:800]
-
-# labels
-set label "- GOOD" at 0, 100
-set label "- BAD" at 0, 300
-set label "- SUPER BAD" at 0, 500
-
-plot '$REPORT_FOLDER/$1.data' with lines
-EOM
-
-    gnuplot  $REPORT_FOLDER/etcd-$1.plg > $REPORT_FOLDER/$1compaction_graph.png
+    gnuplot_render $1 "${#COMPACTIONS_MS[@]}" "ETCD compaction (ms)" "Sample number" "Compaction (ms)"
 
     echo "found ${#COMPACTIONS_MS[@]} compaction entries"
     echo -e ""
