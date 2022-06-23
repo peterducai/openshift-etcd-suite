@@ -137,6 +137,31 @@ HR=0
 TK=0
 LED=0
 
+
+gnuplot_render() {
+      cat > $REPORT_FOLDER/etcd-$1.plg <<- EOM
+#! /usr/bin/gnuplot
+
+set terminal png
+set title '$3'
+set xlabel '$4'
+set ylabel '$5'
+
+set autoscale
+set xrange [1:$2]
+set yrange [1:800]
+
+# labels
+#set label "- GOOD" at 0, 100
+#set label "- BAD" at 0, 300
+#set label "- SUPER BAD" at 0, 500
+
+plot '$7' with lines
+EOM
+
+    gnuplot  $REPORT_FOLDER/etcd-$1.plg > $REPORT_FOLDER/$1$6.png
+}
+
 etcd_overload() {
     OVERLOAD=$(cat $1/etcd/etcd/logs/current.log|grep 'overload'|wc -l)
     LAST=$(cat $1/etcd/etcd/logs/current.log|grep 'overload'|tail -1)
@@ -155,11 +180,23 @@ etcd_overload() {
 }
 
 etcd_took_too_long() {
+    TOOKS_MS=()
     MS=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|tail -1)
     echo $MS
     TOOK=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|wc -l)
     SUMMARY=$(cat $1/etcd/etcd/logs/current.log |awk -v min=999 '/took too long/ {t++} /context deadline exceeded/ {b++} /finished scheduled compaction/ {gsub("\"",""); sub("ms}",""); split($0,a,":"); if (a[12]<min) min=a[12]; if (a[12]>max) max=a[12]; avg+=a[12]; c++} END{printf "took too long: %d\ndeadline exceeded: %d\n",t,b; printf "compaction times:\n  min: %d\n  max: %d\n  avg:%d\n",min,max,avg/c}'
 )
+
+    for lines in $(cat $1/etcd/etcd/logs/current.log||grep "took too long"|grep -ohE "took\":\"[0-9]+(.[0-9]+)ms"|cut -c8-);
+    do
+      TOOKS_MS+=("$lines");
+      if [ "$lines" != "}" ]; then
+        echo $lines >> $REPORT_FOLDER/$1-long.data
+      fi
+    done
+
+    gnuplot_render $1 "${#TOOKS_MS[@]}" "took too long messages" "Sample number" "Took (ms)" "tooktoolong_graph" "$REPORT_FOLDER/$1-long.data"
+
     if [ "$TOOK" != "0" ]; then
       echo -e "${RED}[WARNING]${NONE} we found $TOOK took too long messages in $1"
       echo -e "$SUMMARY"
@@ -208,31 +245,6 @@ etcd_leader() {
 }
 
 
-gnuplot_render() {
-      cat > $REPORT_FOLDER/etcd-$1.plg <<- EOM
-#! /usr/bin/gnuplot
-
-set terminal png
-set title '$3'
-set xlabel '$4'
-set ylabel '$5'
-
-set autoscale
-set xrange [1:$2]
-set yrange [1:800]
-
-# labels
-set label "- GOOD" at 0, 100
-set label "- BAD" at 0, 300
-set label "- SUPER BAD" at 0, 500
-
-plot '$REPORT_FOLDER/$1.data' with lines
-EOM
-
-    gnuplot  $REPORT_FOLDER/etcd-$1.plg > $REPORT_FOLDER/$1compaction_graph.png
-}
-
-
 etcd_compaction() {
   #WORKER+=("${filename::-5}")
   COMPACTIONS_MS=()
@@ -247,11 +259,11 @@ etcd_compaction() {
     do
       COMPACTIONS_MS+=("$lines");
       if [ "$lines" != "}" ]; then
-        echo $lines >> $REPORT_FOLDER/$1.data
+        echo $lines >> $REPORT_FOLDER/$1-comp.data
       fi
     done
 
-    gnuplot_render $1 "${#COMPACTIONS_MS[@]}" "ETCD compaction (ms)" "Sample number" "Compaction (ms)"
+    gnuplot_render $1 "${#COMPACTIONS_MS[@]}" "ETCD compaction (ms)" "Sample number" "Compaction (ms)" "compaction_graph" "$REPORT_FOLDER/$1-comp.data"
 
     echo "found ${#COMPACTIONS_MS[@]} compaction entries"
     echo -e ""
