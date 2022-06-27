@@ -1,8 +1,9 @@
 #!/bin/bash
 
 MUST_PATH=$1
+PLOT=$2
 STAMP=$(date +%Y-%m-%d_%H-%M-%S)
-REPORT_FOLDER="/home/$USER/ETCD-SUMMARY_$STAMP"
+REPORT_FOLDER="$HOME/ETCD-SUMMARY_$STAMP"
 mkdir -p $REPORT_FOLDER
 echo "created $REPORT_FOLDER"
 
@@ -186,17 +187,18 @@ etcd_took_too_long() {
     TOOK=$(cat $1/etcd/etcd/logs/current.log|grep 'took too long'|wc -l)
     SUMMARY=$(cat $1/etcd/etcd/logs/current.log |awk -v min=999 '/took too long/ {t++} /context deadline exceeded/ {b++} /finished scheduled compaction/ {gsub("\"",""); sub("ms}",""); split($0,a,":"); if (a[12]<min) min=a[12]; if (a[12]>max) max=a[12]; avg+=a[12]; c++} END{printf "took too long: %d\ndeadline exceeded: %d\n",t,b; printf "compaction times:\n  min: %d\n  max: %d\n  avg:%d\n",min,max,avg/c}'
 )
-
-    for lines in $(cat $1/etcd/etcd/logs/current.log||grep "took too long"|grep -ohE "took\":\"[0-9]+(.[0-9]+)ms"|cut -c8-);
-    do
-      TOOKS_MS+=("$lines");
-      if [ "$lines" != "}" ]; then
-        echo $lines >> $REPORT_FOLDER/$1-long.data
-      fi
-    done
-
-    gnuplot_render $1 "${#TOOKS_MS[@]}" "took too long messages" "Sample number" "Took (ms)" "tooktoolong_graph" "$REPORT_FOLDER/$1-long.data"
-
+    if [ "$PLOT" = true ]; then
+      for lines in $(cat $1/etcd/etcd/logs/current.log||grep "took too long"|grep -ohE "took\":\"[0-9]+(.[0-9]+)ms"|cut -c8-);
+      do
+        TOOKS_MS+=("$lines");
+        if [ "$lines" != "}" ]; then
+          echo $lines >> $REPORT_FOLDER/$1-long.data
+        fi
+      done
+    fi
+    if [ "$PLOT" = true ]; then
+      gnuplot_render $1 "${#TOOKS_MS[@]}" "took too long messages" "Sample number" "Took (ms)" "tooktoolong_graph" "$REPORT_FOLDER/$1-long.data"
+    fi
     if [ "$TOOK" != "0" ]; then
       echo -e "${RED}[WARNING]${NONE} we found $TOOK took too long messages in $1"
       echo -e "$SUMMARY"
@@ -255,26 +257,27 @@ etcd_compaction() {
   case "${OCP_VERSION}" in
   4.9*|4.8*|4.10*)
     echo "# compaction" > $REPORT_FOLDER/$1.data
-    for lines in $(cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+');
-    do
-      COMPACTIONS_MS+=("$lines");
-      if [ "$lines" != "}" ]; then
-        echo $lines >> $REPORT_FOLDER/$1-comp.data
-      fi
-    done
-
+    if [ "$PLOT" == true ]; then
+      for lines in $(cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+');
+      do
+        COMPACTIONS_MS+=("$lines");
+        if [ "$lines" != "}" ]; then
+          echo $lines >> $REPORT_FOLDER/$1-comp.data
+        fi
+      done
     gnuplot_render $1 "${#COMPACTIONS_MS[@]}" "ETCD compaction (ms)" "Sample number" "Compaction (ms)" "compaction_graph" "$REPORT_FOLDER/$1-comp.data"
+    fi
 
     echo "found ${#COMPACTIONS_MS[@]} compaction entries"
     echo -e ""
 
-    echo -e "highest:"
+    echo -e "[highest (seconds)]"
     cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)s"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -4
     echo -e ""
-    # echo -e "[highest ms]"
+    echo -e "[highest (ms)]"
     cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|sort| tail -4
     echo -e ""
-    echo -e "last 5:"
+    echo -e "last 5 compaction entries:"
     cat $1/etcd/etcd/logs/current.log|grep "compaction"| grep -v downgrade| grep -E "[0-9]+(.[0-9]+)ms"|grep -o '[^,]*$'| cut -d":" -f2|grep -oP '"\K[^"]+'|tail -5
     ;;
   4.7*)
