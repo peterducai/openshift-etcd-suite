@@ -23,8 +23,18 @@ cd $MUST_PATH
 cd $(echo */)
 # ls
 
-OCP_VERSION=$(cat cluster-scoped-resources/config.openshift.io/clusterversions.yaml |grep "Cluster version is"| grep -Po "(\d+\.)+\d+")
-echo -e "Cluster version is $OCP_VERSION"
+if [ -z "$3" ]; then
+  OCP_VERSION=$(cat cluster-scoped-resources/config.openshift.io/clusterversions.yaml |grep "Cluster version is"| grep -Po "(\d+\.)+\d+")
+else
+  OCP_VERSION=$3
+fi
+
+if [ -z "$OCP_VERSION" ]; then
+  echo -e "Cluster version is EMPTY! Script cannot be run without defining proper version!"
+  echo -e "Run script with: ./etcd.sh <path to must-gather> false 4.10     # for 4.10 or replace with your version"
+else
+  echo -e "Cluster version is $OCP_VERSION"
+fi
 echo -e ""
 
 cd cluster-scoped-resources/core/nodes
