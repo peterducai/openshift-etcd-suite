@@ -1,10 +1,11 @@
 #!/bin/bash
 
-echo -e "FIO SUITE version 0.1"
+echo -e "FIO SUITE version 0.1.21"
 echo -e " "
 echo -e "WARNING: this test will run for several minutes without any progress! Please wait until it finish!"
 echo -e " "
 
+cd /test
 
 # if [ -z "$(rpm -qa | grep fio)" ]
 # then
