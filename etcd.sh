@@ -220,6 +220,8 @@ etcd_took_too_long() {
 etcd_ntp() {
     CLOCK=$(cat $1/etcd/etcd/logs/current.log|grep 'clock difference'|wc -l)
     LASTNTP=$(cat $1/etcd/etcd/logs/current.log|grep 'clock difference'|tail -1)
+    LONGDRIFT=$(cat $1/etcd/etcd/logs/current.log|grep 'clock-drift'|wc -l)
+    LASTLONGDRIFT=$(cat $1/etcd/etcd/logs/current.log|grep 'clock-drift'|tail -1)
     LOGENDNTP=$(cat $1/etcd/etcd/logs/current.log|tail -1)
     if [ "$CLOCK" != "0" ]; then
       echo -e "${RED}[WARNING]${NONE} we found $CLOCK ntp clock difference messages in $1"
@@ -229,6 +231,9 @@ etcd_ntp() {
       echo -e "Log ends at "
       echo -e "$LOGENDNTP"| cut -d " " -f1
       echo -e ""
+      echo -e "Long drift: $LONGDRIFT"
+      echo -e "Last long drift:"
+      echo -e $LASTLONGDRIFT
     fi
 }
 
