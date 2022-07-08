@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo -e "FIO SUITE version 0.1.22"
+echo -e "FIO SUITE version 0.1.23"
 echo -e " "
-echo -e "WARNING: this test will run for several minutes without any progress! Please wait until it finish!"
+echo -e "WARNING: this test can run for several minutes without any progress! Please wait until it finish!"
 echo -e " "
 
 cd /test
@@ -34,6 +34,7 @@ FSYNC=$(cat best_200M_d4.log |grep "99.00th"|tail -1|cut -c17-|grep -oE "([0-9]+
 echo -e "200MB file:"
 echo -e "$best_small"
 echo -e "  99.00th fsync: $FSYNC"
+rm fiotest
 rm best_200M_d4.log
 
 
@@ -48,6 +49,7 @@ FSYNC=$(cat rand_1G_d1.log |grep "99.00th"|tail -1|cut -c17-|grep -oE "([0-9]+)]
 echo -e "1GB file:"
 echo -e "$overhead_big"
 echo -e "  99.00th fsync: $FSYNC"
+rm fiotest
 rm rand_1G_d1.log
 
 echo -e ""
@@ -58,6 +60,7 @@ echo -e "200MB file:"
 echo -e "$overhead_small"
 echo -e "  99.00th fsync: $FSYNC"
 rm rand_200M_d1.log
+rm fiotest
 
 
 # echo -e " "
@@ -93,6 +96,8 @@ echo -e "1GB file:"
 echo -e "$s7030big"
 echo -e "  99.00th fsync: $FSYNC"
 rm r70_w30_1G_d4.log
+rm fiotest
+
 echo -e " "
 /usr/bin/fio --name=seqread1mb --filename=fiotest --runtime=120 --ioengine=libaio --direct=1 --ramp_time=10  --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=1 --blocksize=4k --size=200M > r70_w30_200M_d4.log
 s7030small=$(cat r70_w30_200M_d4.log |grep IOPS|tail -1)
@@ -101,6 +106,7 @@ echo -e "200MB file:"
 echo -e "$s7030small"
 echo -e "  99.00th fsync: $FSYNC"
 rm r70_w30_200M_d4.log
+rm fiotest
 
 echo -e " "
 echo -e "-- [ libaio engine SINGLE JOB, 30% read, 70% write] --"
@@ -113,6 +119,8 @@ echo -e "1GB file:"
 echo -e "$so7030big"
 echo -e "  99.00th fsync: $FSYNC"
 rm r30_w70_200M_d1.log
+rm fiotest
+
 echo -e " "
 /usr/bin/fio --name=seqwrite1mb --filename=fiotest --runtime=120 --bs=2k --ioengine=libaio --direct=1 --ramp_time=10 --readwrite=rw --rwmixread=30 --rwmixwrite=70 --iodepth=1 --blocksize=4k --size=1G > r30_w70_1G_d1.log
 so7030small=$(cat r30_w70_1G_d1.log |grep IOPS|tail -1)
@@ -132,6 +140,7 @@ s7030big=$(cat r70_w30_1G_d4.log |grep IOPS|tail -1)
 echo -e "1GB file:"
 echo -e "$s7030big"
 rm r70_w30_1G_d4.log
+rm fiotest
 
 echo -e " "
 /usr/bin/fio --name=seqparread1mb8 --filename=fiotest --runtime=120 --bs=2k --ioengine=libaio --direct=1 --ramp_time=10 --numjobs=8 --readwrite=rw --rwmixread=70 --rwmixwrite=30 --iodepth=1 --blocksize=4k --size=200M > r70_w30_200M_d4.log
@@ -139,6 +148,7 @@ s7030small=$(cat r70_w30_200M_d4.log |grep IOPS|tail -1)
 echo -e "200MB file:"
 echo -e "$s7030small"
 rm r70_w30_200M_d4.log
+rm fiotest
 
 echo -e " "
 echo -e "-- [ libaio engine 8 PARALLEL JOBS, 30% read, 70% write] ----"
@@ -149,6 +159,7 @@ so7030big=$(cat r30_w70_200M_d1.log |grep IOPS|tail -1)
 echo -e "1GB file:"
 echo -e "$so7030big"
 rm r30_w70_200M_d1.log
+rm fiotest
 echo -e " "
 
 /usr/bin/fio --name=seqparwrite1mb8 --filename=fiotest --runtime=120 --bs=2k --ioengine=libaio --direct=1 --ramp_time=10 --numjobs=8 --readwrite=rw --rwmixread=30 --rwmixwrite=70 --iodepth=1 --blocksize=4k --size=1G > r30_w70_1G_d1.log
