@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "FIO SUITE version 0.1.23"
+echo -e "FIO SUITE version 0.1.24"
 echo -e " "
 echo -e "WARNING: this test can run for several minutes without any progress! Please wait until it finish!"
 echo -e " "
