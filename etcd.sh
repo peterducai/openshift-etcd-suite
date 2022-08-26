@@ -464,7 +464,7 @@ compaction_check() {
   echo -e ""
   echo -e "[COMPACTION]"
   echo -e "should be ideally below 100ms (and below 10ms on fast SSD/NVMe)"
-  echo -e "anything above 300ms could mean serious performance issues (including issues with co login)"
+  echo -e "anything above 300ms could mean serious performance issues (including issues with oc login)"
   echo -e ""
   for member in $(ls |grep -v "revision"|grep -v "quorum"); do
     etcd_compaction $member
