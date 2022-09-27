@@ -2,3 +2,5 @@ node_modules
 static
 push.sh
 inspect
+cleanfsynctest.log
+fiotest
