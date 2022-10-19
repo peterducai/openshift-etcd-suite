@@ -60,7 +60,7 @@ help_etcd_objects() {
   echo -e ""
   echo -e "$ oc project openshift-etcd"
   echo -e "oc get pods"
-  echo -e "oc rsh etcd-ip-10-0-150-204.eu-central-1.compute.internal"
+  echo -e "oc rsh <etcd-pod-name>"
   echo -e "> etcdctl get / --prefix --keys-only | sed '/^$/d' | cut -d/ -f3 | sort | uniq -c | sort -rn"
   echo -e ""
   echo -e "[HINT] Any number of CRDs (secrets, deployments, etc..) above 8k could cause performance issues on storage with not enough IOPS."
