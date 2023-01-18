@@ -1,5 +1,7 @@
 # openshift-etcd-suite
 
+**DEPRECATED!!!**   instead use [etcd-tools](https://github.com/peterducai/etcd-tools/) 
+
 tools to troubleshoot ETCD on Openshift 4
 
 For easy use of container you can create alias for openshift-etcd-suite
